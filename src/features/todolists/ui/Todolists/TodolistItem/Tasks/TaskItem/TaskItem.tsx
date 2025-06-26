@@ -1,20 +1,22 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
 import {
-  changeTaskStatusAC,
+  changeTaskStatusModelThunk,
+  changeTaskStatusThunk,
   changeTaskTitleAC,
   deleteTaskAC,
-  type Task,
 } from "@/features/todolists/model/tasks-slice"
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
 import IconButton from "@mui/material/IconButton"
 import ListItem from "@mui/material/ListItem"
-import type { ChangeEvent } from "react"
 import { getListItemSx } from "./TaskItem.styles"
+import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
+import { TaskStatus } from "@/common/enums"
+import { ChangeEvent } from "react"
 
 type Props = {
-  task: Task
+  task: DomainTask
   todolistId: string
 }
 
@@ -25,9 +27,28 @@ export const TaskItem = ({ task, todolistId }: Props) => {
     dispatch(deleteTaskAC({ todolistId, taskId: task.id }))
   }
 
+  // const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const newStatusValue = e.currentTarget.checked
+  //   dispatch(changeTaskStatusAC({ todolistId, taskId: task.id, isDone: newStatusValue }))
+  // }
+
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
-    const newStatusValue = e.currentTarget.checked
-    dispatch(changeTaskStatusAC({ todolistId, taskId: task.id, isDone: newStatusValue }))
+    const newStatusValue = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
+    dispatch(changeTaskStatusThunk({ todolistId: task.todoListId, taskId: task.id, status: newStatusValue }))
+  }
+
+  const changeTaskStatusWithModel = (e: ChangeEvent<HTMLInputElement>) => {
+    const newStatusValue = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
+    // const model: UpdateTaskModel = {
+    //   title: task.title,
+    //   status: newStatusValue,
+    //   priority: task.priority,
+    //   startDate: task.startDate,
+    //   description: task.description,
+    //   deadline: task.deadline,
+    // }
+    // dispatch(changeTaskStatusModelThunk({ todolistId: task.todoListId, taskId: task.id, model }))
+    dispatch(changeTaskStatusModelThunk({ ...task, status: newStatusValue }))
   }
 
   const changeTaskTitle = (title: string) => {
@@ -35,9 +56,9 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   }
 
   return (
-    <ListItem sx={getListItemSx(task.isDone)}>
+    <ListItem sx={getListItemSx(task.status === TaskStatus.Completed)}>
       <div>
-        <Checkbox checked={task.isDone} onChange={changeTaskStatus} />
+        <Checkbox checked={task.status === TaskStatus.Completed} onChange={changeTaskStatusWithModel} />
         <EditableSpan value={task.title} onChange={changeTaskTitle} />
       </div>
       <IconButton onClick={deleteTask}>
