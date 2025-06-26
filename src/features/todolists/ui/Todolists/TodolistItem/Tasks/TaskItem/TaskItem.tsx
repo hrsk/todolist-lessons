@@ -3,8 +3,8 @@ import { useAppDispatch } from "@/common/hooks"
 import {
   changeTaskStatusModelThunk,
   changeTaskStatusThunk,
-  changeTaskTitleAC,
-  deleteTaskAC,
+  changeTaskTitleTC,
+  deleteTaskTC,
 } from "@/features/todolists/model/tasks-slice"
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
@@ -24,7 +24,8 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   const dispatch = useAppDispatch()
 
   const deleteTask = () => {
-    dispatch(deleteTaskAC({ todolistId, taskId: task.id }))
+    // dispatch(deleteTaskAC({ todolistId, taskId: task.id }))
+    dispatch(deleteTaskTC({ todolistId, taskId: task.id }))
   }
 
   // const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +53,8 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   }
 
   const changeTaskTitle = (title: string) => {
-    dispatch(changeTaskTitleAC({ todolistId, taskId: task.id, title }))
+    // dispatch(changeTaskTitleAC({ todolistId, taskId: task.id, title }))
+    dispatch(changeTaskTitleTC({ ...task, title }))
   }
 
   return (

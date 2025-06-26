@@ -145,13 +145,59 @@ export const tasksSlice = createAppSlice({
         },
       },
     ),
-    deleteTaskAC: create.reducer<{ todolistId: string; taskId: string }>((state, action) => {
-      const tasks = state[action.payload.todolistId]
-      const index = tasks.findIndex((task) => task.id === action.payload.taskId)
-      if (index !== -1) {
-        tasks.splice(index, 1)
-      }
-    }),
+    deleteTaskTC: create.asyncThunk(
+      async (arg: { todolistId: string; taskId: string }, { rejectWithValue }) => {
+        await tasksApi.deleteTask(arg)
+        try {
+          return { todolistId: arg.todolistId, taskId: arg.taskId }
+        } catch (e) {
+          return rejectWithValue(e)
+        }
+      },
+      {
+        fulfilled: (state, action) => {
+          const tasks = state[action.payload.todolistId]
+          const index = tasks.findIndex((task) => task.id === action.payload.taskId)
+          if (index !== -1) {
+            tasks.splice(index, 1)
+          }
+        },
+      },
+    ),
+    changeTaskTitleTC: create.asyncThunk(
+      async (task: DomainTask, { rejectWithValue }) => {
+        try {
+          const model: UpdateTaskModel = {
+            title: task.title,
+            status: task.status,
+            priority: task.priority,
+            startDate: task.startDate,
+            description: task.description,
+            deadline: task.deadline,
+          }
+
+          const res = await tasksApi.updateTask({ todolistId: task.todoListId, taskId: task.id, model })
+          return { task: res.data.data.item }
+        } catch (e) {
+          return rejectWithValue(e)
+        }
+      },
+      {
+        fulfilled: (state, action) => {
+          const task = state[action.payload.task.todoListId].find((task) => task.id === action.payload.task.id)
+          if (task) {
+            task.title = action.payload.task.title
+          }
+        },
+      },
+    ),
+    // deleteTaskAC: create.reducer<{ todolistId: string; taskId: string }>((state, action) => {
+    //   const tasks = state[action.payload.todolistId]
+    //   const index = tasks.findIndex((task) => task.id === action.payload.taskId)
+    //   if (index !== -1) {
+    //     tasks.splice(index, 1)
+    //   }
+    // }),
     // createTaskAC: create.reducer<{ todolistId: string; title: string }>((state, action) => {
     //   const newTask: DomainTask = {
     //     title: action.payload.title,
@@ -173,19 +219,19 @@ export const tasksSlice = createAppSlice({
     //     task.status = action.payload.isDone ? TaskStatus.Completed : TaskStatus.InProgress
     //   }
     // }),
-    changeTaskTitleAC: create.reducer<{ todolistId: string; taskId: string; title: string }>((state, action) => {
-      const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
-      if (task) {
-        task.title = action.payload.title
-      }
-    }),
+    // changeTaskTitleAC: create.reducer<{ todolistId: string; taskId: string; title: string }>((state, action) => {
+    //   const task = state[action.payload.todolistId].find((task) => task.id === action.payload.taskId)
+    //   if (task) {
+    //     task.title = action.payload.title
+    //   }
+    // }),
   }),
 })
 
 export const { selectTasks } = tasksSlice.selectors
 export const {
-  deleteTaskAC,
-  changeTaskTitleAC,
+  deleteTaskTC,
+  changeTaskTitleTC,
   fetchTasks,
   createTaskThunk,
   changeTaskStatusThunk,
