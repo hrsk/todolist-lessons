@@ -5,6 +5,7 @@ import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.t
 import { current } from "@reduxjs/toolkit"
 import { RootState } from "@/app/store.ts"
 import { TaskPriority, TaskStatus } from "@/common/enums"
+import { changeAppRequestStatus } from "@/app/app-slice.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -23,12 +24,14 @@ export const tasksSlice = createAppSlice({
   },
   reducers: (create) => ({
     fetchTasks: create.asyncThunk(
-      async (todolistId: string, thunkAPI) => {
+      async (todolistId: string, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(changeAppRequestStatus({ isLoading: "loading" }))
           const res = await tasksApi.getTasks(todolistId)
+          dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
           return { todolistId, tasks: res.data.items }
         } catch (error) {
-          return thunkAPI.rejectWithValue(null)
+          return rejectWithValue(null)
         }
       },
       {
@@ -41,12 +44,14 @@ export const tasksSlice = createAppSlice({
       },
     ),
     createTaskThunk: create.asyncThunk(
-      async (args: { todolistId: string; title: string }, thunkAPI) => {
+      async (args: { todolistId: string; title: string }, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(changeAppRequestStatus({ isLoading: "loading" }))
           const res = await tasksApi.createTask(args)
+          dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
           return { task: res.data.data.item }
         } catch (error) {
-          return thunkAPI.rejectWithValue(null)
+          return rejectWithValue(null)
         }
       },
       {
@@ -193,7 +198,7 @@ export const tasksSlice = createAppSlice({
     ),
     changeTask: create.asyncThunk(
       async (args: { todolistId: string; taskId: string; updateTaskModel: UpdateTaskModel }, thunkAPI) => {
-        const { getState } = thunkAPI
+        const { dispatch, rejectWithValue, getState } = thunkAPI
 
         try {
           const tasks = (getState() as RootState).tasks
@@ -211,13 +216,15 @@ export const tasksSlice = createAppSlice({
               deadline: findTask.deadline,
             }
 
+            dispatch(changeAppRequestStatus({ isLoading: "loading" }))
             const res = await tasksApi.updateTask({
               todolistId: findTask.todoListId,
               taskId: findTask.id,
               model: updateModel,
             })
+            dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
             return { task: res.data.data.item }
-          } else return thunkAPI.rejectWithValue("error")
+          } else return rejectWithValue("error")
         } catch (error) {
           return thunkAPI.rejectWithValue(null)
         }
