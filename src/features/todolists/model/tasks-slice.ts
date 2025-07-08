@@ -5,8 +5,10 @@ import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.t
 import { current } from "@reduxjs/toolkit"
 import { RootState } from "@/app/store.ts"
 import { TaskPriority, TaskStatus } from "@/common/enums"
-import { changeAppRequestStatus, setAppError } from "@/app/app-slice.ts"
+import { changeAppRequestStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/types"
+import { handleAppError } from "@/common/utils/handleAppError.ts"
+import { handleServerError } from "@/common/utils/handleServerError.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -54,18 +56,19 @@ export const tasksSlice = createAppSlice({
             dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
             return { task: res.data.data.item }
           } else {
-            if (res.data.messages.length) {
-              dispatch(setAppError({ error: res.data.messages[0] }))
-            } else {
-              dispatch(setAppError({ error: "Some error occurred" }))
-            }
-            dispatch(changeAppRequestStatus({ isLoading: "failed" }))
+            handleAppError(res.data, dispatch)
+            // if (res.data.messages.length) {
+            //   dispatch(setAppError({ error: res.data.messages[0] }))
+            // } else {
+            //   dispatch(setAppError({ error: "Some error occurred" }))
+            // }
+            // dispatch(changeAppRequestStatus({ isLoading: "failed" }))
             return rejectWithValue(null)
           }
-
         } catch (error: any) {
-          dispatch(setAppError({ error: error.message }))
-          dispatch(changeAppRequestStatus({ isLoading: "failed" }))
+          handleServerError(error, dispatch)
+          // dispatch(setAppError({ error: error.message }))
+          // dispatch(changeAppRequestStatus({ isLoading: "failed" }))
           return rejectWithValue(null)
         }
       },
@@ -239,19 +242,21 @@ export const tasksSlice = createAppSlice({
             })
 
             if (res.data.resultCode === ResultCode.Success) {
-            dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
-            return { task: res.data.data.item }
+              dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
+              return { task: res.data.data.item }
             } else {
-              dispatch(setAppError({ error: res.data.messages[0] }))
-              dispatch(changeAppRequestStatus({ isLoading: "failed" }))
+              handleAppError(res.data, dispatch)
+              // dispatch(setAppError({ error: res.data.messages[0] }))
+              // dispatch(changeAppRequestStatus({ isLoading: "failed" }))
+              return rejectWithValue(null)
             }
-          } return rejectWithValue('error')
+          }
         } catch (error: any) {
-          dispatch(setAppError({ error: error.message }))
-          dispatch(changeAppRequestStatus({ isLoading: "failed" }))
-
-          return thunkAPI.rejectWithValue(null)
+          handleServerError(error, dispatch)
+          // dispatch(setAppError({ error: error.message }))
+          // dispatch(changeAppRequestStatus({ isLoading: "failed" }))
         }
+        return thunkAPI.rejectWithValue(null)
       },
 
       {
