@@ -5,7 +5,7 @@ import { PageNotFound } from "../components"
 
 export const Path = {
   Main: "/",
-  Login: "login",
+  Login: "/login",
   NotFound: '*',
 } as const
 
