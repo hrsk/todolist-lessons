@@ -1,7 +1,7 @@
 import { createTodolistTC, deleteTodolistTC } from "./todolists-slice"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
-import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
+import { DomainTask, domainTaskSchema, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { current } from "@reduxjs/toolkit"
 import { RootState } from "@/app/store.ts"
 import { TaskPriority, TaskStatus } from "@/common/enums"
@@ -31,6 +31,7 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(changeAppRequestStatus({ isLoading: "loading" }))
           const res = await tasksApi.getTasks(todolistId)
+          domainTaskSchema.array().parse(res.data.items) // ZOD
           dispatch(changeAppRequestStatus({ isLoading: "succeeded" }))
           return { todolistId, tasks: res.data.items }
         } catch (error) {
