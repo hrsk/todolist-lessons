@@ -1,8 +1,8 @@
 import { beforeEach, expect, test } from "vitest"
-import { changeTask, createTaskThunk, deleteTaskTC, tasksReducer, type TasksState } from "../tasks-slice"
+import { updateTask, createTask, deleteTask, tasksReducer, type TasksState } from "../tasks-slice"
 import { TaskPriority, TaskStatus } from "@/common/enums"
 import { nanoid } from "@reduxjs/toolkit"
-import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
+import { createTodolist, deleteTodolist } from "@/features/todolists/model/todolists-slice.ts"
 
 let startState: TasksState = {}
 
@@ -66,11 +66,10 @@ beforeEach(() => {
   }
 })
 
-
 test("correct task should be deleted", () => {
   const endState = tasksReducer(
     startState,
-    deleteTaskTC.fulfilled(
+    deleteTask.fulfilled(
       {
         todolistId: "todolistId2",
         taskId: "2",
@@ -126,7 +125,7 @@ test("correct task should be deleted", () => {
 test("correct task should be created at correct array", () => {
   const endState = tasksReducer(
     startState,
-    createTaskThunk.fulfilled(
+    createTask.fulfilled(
       {
         task: {
           id: nanoid(),
@@ -157,7 +156,7 @@ test("correct task should change its status", () => {
 
   const endState = tasksReducer(
     startState,
-    changeTask.fulfilled(
+    updateTask.fulfilled(
       {
         task: { ...taskDefaultValues, todoListId: "todolistId1", id: "1", status: TaskStatus.Completed, title: "CSS" },
       },
@@ -185,7 +184,7 @@ test("correct task should change its title", () => {
 
   const endState = tasksReducer(
     startState,
-    changeTask.fulfilled(
+    updateTask.fulfilled(
       {
         task: { ...taskDefaultValues, todoListId: "todolistId2", id: "1", status: TaskStatus.New, title: "coffee" },
       },
@@ -206,7 +205,7 @@ test("correct task should change its title", () => {
 test("array should be created for new todolist", () => {
   const endState = tasksReducer(
     startState,
-    createTodolistTC.fulfilled(
+    createTodolist.fulfilled(
       {
         todolist: {
           id: nanoid(),
@@ -233,7 +232,7 @@ test("array should be created for new todolist", () => {
 test("property with todolistId should be deleted", () => {
   const endState = tasksReducer(
     startState,
-    deleteTodolistTC.fulfilled(
+    deleteTodolist.fulfilled(
       {
         todolist: {},
         todolistId: "todolistId2",

@@ -5,9 +5,9 @@ const playerSchema = z.object({
   xp: z.number(),
 })
 
-// console.log(playerSchema.parse({ username: "billie", xp: 100 })) // { username: 'billie', xp: 100 }
-// console.log(playerSchema.parse({ username2: "billie", xp: 100 })) //  "Invalid input: expected string, received undefined"
-// console.log(playerSchema.parse({ username: "billie", xp: '100' })) // "message": "Invalid input: expected number, received string"
+console.log(playerSchema.parse({ username: "billie", xp: 100 })) // { username: 'billie', xp: 100 }
+console.log(playerSchema.parse({ username2: "billie", xp: 100 })) //  "Invalid input: expected string, received undefined"
+console.log(playerSchema.parse({ username: "billie", xp: '100' })) // "message": "Invalid input: expected number, received string"
 
 
 const playerSchemaValid = z.object({

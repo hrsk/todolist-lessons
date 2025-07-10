@@ -1,4 +1,4 @@
-import { changeAppRequestStatus, setAppError } from "@/app/app-slice.ts"
+import { setAppRequestStatus, setAppError } from "@/app/app-slice.ts"
 import { Dispatch } from "@reduxjs/toolkit"
 import axios from "axios"
 import { z } from "zod/v4"
@@ -25,7 +25,7 @@ export const handleServerError = (error: any, dispatch: Dispatch) => {
   }
 
   dispatch(setAppError({ error: errorMessage }))
-  dispatch(changeAppRequestStatus({ isLoading: "failed" }))
+  dispatch(setAppRequestStatus({ isLoading: "failed" }))
 
   // let errorMessage
   //
