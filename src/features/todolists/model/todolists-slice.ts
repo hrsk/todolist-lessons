@@ -1,8 +1,10 @@
 import { todolistsApi } from "@/features/todolists/api/todolistsApi"
-import type { Todolist } from "@/features/todolists/api/todolistsApi.types"
+import { createTodolistResponseSchema, Todolist, todolistSchema } from "@/features/todolists/api/todolistsApi.types"
 import { createAppSlice } from "@/common/utils"
-import { setAppRequestStatus, setAppError } from "@/app/app-slice.ts"
-import { RequestStatus, ResultCode } from "@/common/types"
+import { setAppError, setAppRequestStatus } from "@/app/app-slice.ts"
+import { baseResponseWithEmptyObjectData, RequestStatus, ResultCode } from "@/common/types"
+import { z } from "zod/v4"
+import { handleServerError } from "@/common/utils/handleServerError.ts"
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -28,10 +30,12 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(setAppRequestStatus({ isLoading: "loading" }))
           const res = await todolistsApi.getTodolists()
+          todolistSchema.array().parse(res.data)
           dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
 
           return { todolists: res.data }
         } catch (error) {
+          handleServerError(error, dispatch)
           dispatch(setAppRequestStatus({ isLoading: "failed" }))
           return rejectWithValue(null)
         }
@@ -52,10 +56,13 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(setAppRequestStatus({ isLoading: "loading" }))
           const res = await todolistsApi.createTodolist(args.title)
+          createTodolistResponseSchema.parse(res.data)
+
           dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
 
           return { todolist: res.data.data.item }
         } catch (error) {
+          handleServerError(error, dispatch)
           dispatch(setAppRequestStatus({ isLoading: "failed" }))
           return rejectWithValue(null)
         }
@@ -75,10 +82,15 @@ export const todolistsSlice = createAppSlice({
           dispatch(setAppRequestStatus({ isLoading: "loading" }))
           dispatch(setEntityStatus({ id: args.todolistId, entityStatus: "loading" }))
           const res = await todolistsApi.deleteTodolist(args.todolistId)
+          baseResponseWithEmptyObjectData.parse(res.data)
+
           dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
 
           return { todolist: res.data.data, todolistId: args.todolistId }
         } catch (error) {
+          if (error instanceof z.ZodError) {
+            console.table(error.issues)
+          }
           dispatch(setAppRequestStatus({ isLoading: "failed" }))
           return rejectWithValue(null)
         }

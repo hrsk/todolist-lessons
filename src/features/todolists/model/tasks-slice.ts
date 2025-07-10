@@ -1,12 +1,13 @@
 import { createTodolist, deleteTodolist } from "./todolists-slice"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
-import { DomainTask, domainTaskSchema, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
+import { DomainTask, getTasksSchema, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { RootState } from "@/app/store.ts"
 import { setAppRequestStatus } from "@/app/app-slice.ts"
-import { ResultCode } from "@/common/types"
+import { baseResponseWithEmptyObjectData, ResultCode, taskResponseSchema } from "@/common/types"
 import { handleAppError } from "@/common/utils/handleAppError.ts"
 import { handleServerError } from "@/common/utils/handleServerError.ts"
+import { z } from "zod/v4"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -29,10 +30,13 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppRequestStatus({ isLoading: "loading" }))
           const res = await tasksApi.getTasks(todolistId)
-          domainTaskSchema.array().parse(res.data.items) // ZOD
+          getTasksSchema.parse(res.data) // ZOD
           dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
           return { todolistId, tasks: res.data.items }
         } catch (error) {
+          if (error instanceof z.ZodError) {
+            console.table(error.issues)
+          }
           return rejectWithValue(null)
         }
       },
@@ -53,6 +57,7 @@ export const tasksSlice = createAppSlice({
 
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
+            taskResponseSchema.parse(res.data)
             return { task: res.data.data.item }
           } else {
             handleAppError(res.data, dispatch)
@@ -73,11 +78,14 @@ export const tasksSlice = createAppSlice({
       },
     ),
     deleteTask: create.asyncThunk(
-      async (arg: { todolistId: string; taskId: string }, { rejectWithValue }) => {
-        await tasksApi.deleteTask(arg)
+      async (arg: { todolistId: string; taskId: string }, { dispatch, rejectWithValue }) => {
+        const res = await tasksApi.deleteTask(arg)
         try {
+          baseResponseWithEmptyObjectData.parse(res)
+
           return { todolistId: arg.todolistId, taskId: arg.taskId }
         } catch (e) {
+          handleServerError(e, dispatch)
           return rejectWithValue(e)
         }
       },
@@ -119,6 +127,7 @@ export const tasksSlice = createAppSlice({
             })
 
             if (res.data.resultCode === ResultCode.Success) {
+              taskResponseSchema.parse(res.data) // ZOD
               dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
               return { task: res.data.data.item }
             } else {
