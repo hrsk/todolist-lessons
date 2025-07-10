@@ -7,9 +7,9 @@ export const loginSchema = z.object({
   email: z.email(),
   password: z
     .string()
-    .nonempty()
-    .min(minLength, { error: `Password length minimal ${minLength} symbols` })
-    .max(maxLength, { error: `Password length maximum ${maxLength} symbols` }),
+    .nonempty({ error: "Password is required" })
+    .min(minLength, { error: `Password must be at least ${minLength} characters long.` })
+    .max(maxLength, { error: `Password length must not exceed 16 characters.` }),
   // password: z.string().check(z.minLength(5)),
   rememberMe: z.boolean().optional(),
 })
