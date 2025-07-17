@@ -10,17 +10,26 @@ import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
 import LinearProgress from "@mui/material/LinearProgress"
+import { logout, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { useNavigate } from "react-router"
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const isLoading = useAppSelector(selectIsLoading)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const dispatch = useAppDispatch()
+  // const navigate = useNavigate()
 
   const theme = getTheme(themeMode)
 
   const changeMode = () => {
     dispatch(changeThemeModeAC({ themeMode: themeMode === "light" ? "dark" : "light" }))
+  }
+
+  const logoutHandler = () => {
+    dispatch(logout())
+    // navigate("/login")
   }
 
   return (
@@ -31,14 +40,14 @@ export const Header = () => {
             <MenuIcon />
           </IconButton>
           <div>
-            <NavButton>Sign in</NavButton>
-            <NavButton>Sign up</NavButton>
+            {isLoggedIn && <NavButton onClick={logoutHandler}>Logout</NavButton>}
+            {/*<NavButton>Sign up</NavButton>*/}
             <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
             <Switch color={"default"} onChange={changeMode} />
           </div>
         </Container>
       </Toolbar>
-      {isLoading === 'loading' && <LinearProgress />}
+      {isLoading === "loading" && <LinearProgress />}
     </AppBar>
   )
 }

@@ -1,5 +1,5 @@
 import { selectThemeMode } from "@/app/app-slice"
-import { useAppSelector } from "@/common/hooks"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
@@ -13,6 +13,8 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import styles from "./Login.module.css"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema } from "@/features/auth/lib/schemas"
+import { login, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { Navigate } from "react-router"
 
 type LoginInputs = {
   email: string
@@ -22,13 +24,16 @@ type LoginInputs = {
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
+
+  const dispatch = useAppDispatch()
 
   const theme = getTheme(themeMode)
 
   const {
     register,
     handleSubmit,
-    reset,
+    // reset,
     control,
     formState: { errors },
   } = useForm<LoginInputs>({
@@ -37,8 +42,12 @@ export const Login = () => {
   })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    console.log(data)
-    reset()
+    dispatch(login(data))
+    // reset()
+  }
+
+  if (isLoggedIn) {
+    return <Navigate to={"/"} />
   }
 
   return (
@@ -66,10 +75,16 @@ export const Login = () => {
             </p>
           </FormLabel>
           <FormGroup>
-            <TextField label="Email" margin="normal" error={!!errors.email}{...register("email")} />
+            <TextField label="Email" margin="normal" error={!!errors.email} {...register("email")} />
             {errors.email && <span className={styles.errorMessage}>{errors.email.message}</span>}
 
-            <TextField type="password" label="Password" error={!!errors.password} margin="normal" {...register("password")} />
+            <TextField
+              type="password"
+              label="Password"
+              error={!!errors.password}
+              margin="normal"
+              {...register("password")}
+            />
             {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
 
             <FormControlLabel
