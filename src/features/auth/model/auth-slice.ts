@@ -4,6 +4,8 @@ import { authApi } from "@/features/auth/api/authApi.ts"
 import { setAppRequestStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/types"
 import { AUTH_TOKEN } from "@/common/constants"
+import { handleServerError } from "@/common/utils/handleServerError.ts"
+import { handleAppError } from "@/common/utils/handleAppError.ts"
 
 export const authSlice = createAppSlice({
   name: "auth",
@@ -13,16 +15,9 @@ export const authSlice = createAppSlice({
   reducers: (create) => ({
     login: create.asyncThunk(
       async (data: LoginInputs, { dispatch, rejectWithValue }) => {
-        dispatch(setAppRequestStatus({ isLoading: "loading" }))
-
-        const res = await authApi.login({
-          email: data.email,
-          password: data.password,
-          captcha: data.captcha,
-          rememberMe: data.rememberMe,
-        })
-
         try {
+          dispatch(setAppRequestStatus({ isLoading: "loading" }))
+          const res = await authApi.login(data)
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
             localStorage.setItem(AUTH_TOKEN, res.data.data.token)
@@ -32,9 +27,11 @@ export const authSlice = createAppSlice({
               isLoggedIn: true,
             }
           } else {
+            handleAppError(res.data, dispatch)
             return rejectWithValue(null)
           }
-        } catch (e) {
+        } catch (error) {
+          handleServerError(error, dispatch)
           return rejectWithValue(null)
         } finally {
           dispatch(setAppRequestStatus({ isLoading: "idle" }))
@@ -49,11 +46,9 @@ export const authSlice = createAppSlice({
     ),
     logout: create.asyncThunk(
       async (_args, { dispatch, rejectWithValue }) => {
-        dispatch(setAppRequestStatus({ isLoading: "loading" }))
-
-        const res = await authApi.logout()
-
         try {
+          dispatch(setAppRequestStatus({ isLoading: "loading" }))
+          const res = await authApi.logout()
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
             localStorage.removeItem(AUTH_TOKEN)
@@ -61,9 +56,11 @@ export const authSlice = createAppSlice({
               isLoggedIn: false,
             }
           } else {
+            handleAppError(res.data, dispatch)
             return rejectWithValue(null)
           }
-        } catch (e) {
+        } catch (error) {
+          handleServerError(error, dispatch)
           return rejectWithValue(null)
         } finally {
           dispatch(setAppRequestStatus({ isLoading: "idle" }))
@@ -78,20 +75,20 @@ export const authSlice = createAppSlice({
     ),
     authMe: create.asyncThunk(
       async (_args, { dispatch, rejectWithValue }) => {
-        dispatch(setAppRequestStatus({ isLoading: "loading" }))
-
-        const res = await authApi.me()
-
         try {
+          dispatch(setAppRequestStatus({ isLoading: "loading" }))
+          const res = await authApi.me()
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppRequestStatus({ isLoading: "succeeded" }))
             return {
               isLoggedIn: true,
             }
           } else {
+            handleAppError(res.data, dispatch)
             return rejectWithValue(null)
           }
-        } catch (e) {
+        } catch (error) {
+          handleServerError(error, dispatch)
           return rejectWithValue(null)
         } finally {
           dispatch(setAppRequestStatus({ isLoading: "idle" }))

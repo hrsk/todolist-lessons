@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { loginSchema } from "@/features/auth/lib/schemas"
 import { login, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
 import { Navigate } from "react-router"
+import { Path } from "@/common/routing/Routing.tsx"
 
 type LoginInputs = {
   email: string
@@ -47,7 +48,7 @@ export const Login = () => {
   }
 
   if (isLoggedIn) {
-    return <Navigate to={"/"} />
+    return <Navigate to={Path.Main} />
   }
 
   return (

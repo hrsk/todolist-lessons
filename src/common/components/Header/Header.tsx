@@ -11,7 +11,6 @@ import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
 import LinearProgress from "@mui/material/LinearProgress"
 import { logout, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
-import { useNavigate } from "react-router"
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -19,7 +18,6 @@ export const Header = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const dispatch = useAppDispatch()
-  // const navigate = useNavigate()
 
   const theme = getTheme(themeMode)
 
@@ -29,7 +27,6 @@ export const Header = () => {
 
   const logoutHandler = () => {
     dispatch(logout())
-    // navigate("/login")
   }
 
   return (
