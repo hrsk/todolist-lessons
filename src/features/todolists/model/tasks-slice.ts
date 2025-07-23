@@ -8,6 +8,7 @@ import { baseResponseWithEmptyObjectData, ResultCode, taskResponseSchema } from 
 import { handleAppError } from "@/common/utils/handleAppError.ts"
 import { handleServerError } from "@/common/utils/handleServerError.ts"
 import { z } from "zod/v4"
+import { clearData } from "@/common/actions"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -22,6 +23,9 @@ export const tasksSlice = createAppSlice({
       })
       .addCase(deleteTodolist.fulfilled, (state, action) => {
         delete state[action.payload.todolistId]
+      })
+      .addCase(clearData, () => {
+        return {}
       })
   },
   reducers: (create) => ({

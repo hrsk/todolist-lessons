@@ -5,6 +5,7 @@ import { setAppError, setAppRequestStatus } from "@/app/app-slice.ts"
 import { baseResponseWithEmptyObjectData, RequestStatus, ResultCode } from "@/common/types"
 import { z } from "zod/v4"
 import { handleServerError } from "@/common/utils/handleServerError.ts"
+import { clearData } from "@/common/actions"
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -136,7 +137,11 @@ export const todolistsSlice = createAppSlice({
         },
       },
     ),
-  }),
+  }),extraReducers: builder => {
+    builder.addCase(clearData, () => {
+      return []
+    })
+  }
 })
 
 export const { selectTodolists } = todolistsSlice.selectors
