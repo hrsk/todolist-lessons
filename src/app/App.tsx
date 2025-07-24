@@ -1,5 +1,5 @@
 import styles from "./App.module.css"
-import { selectThemeMode } from "@/app/app-slice"
+import { selectThemeMode, setIsLoggedIn } from "@/app/app-slice"
 import { Header } from "@/common/components/Header/Header"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
@@ -8,8 +8,9 @@ import { ThemeProvider } from "@mui/material/styles"
 import { ErrorSnackbar } from "@/common/components/ErrorSnackBar/ErrorSnackBar.tsx"
 import { Routing } from "@/common/routing"
 import { useEffect, useState } from "react"
-import { authMe } from "@/features/auth/model/auth-slice.ts"
 import { CircularProgress } from "@mui/material"
+import { useAuthMeQuery } from "@/features/auth/api/authApi.ts"
+import { ResultCode } from "@/common/types"
 
 export const App = () => {
   const [isInitialized, setIsInitialized] = useState(false)
@@ -20,11 +21,21 @@ export const App = () => {
 
   const dispatch = useAppDispatch()
 
+  const { data, isLoading } = useAuthMeQuery()
+
   useEffect(() => {
-    dispatch(authMe()).unwrap().finally(() => {
+    if (!isLoading) {
+      if (data?.resultCode === ResultCode.Success) {
+        dispatch(setIsLoggedIn({ isLoggedIn: true }))
+      }
       setIsInitialized(true)
-    })
-  }, [])
+    }
+    // dispatch(authMe())
+    //   .unwrap()
+    //   .finally(() => {
+    //     setIsInitialized(true)
+    //   })
+  }, [isLoading])
 
   if (!isInitialized) {
     return (

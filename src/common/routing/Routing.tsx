@@ -4,7 +4,7 @@ import { Login } from "@/features/todolists/ui/Login/Login.tsx"
 import { PageNotFound } from "../components"
 import { ProtectedRoute } from "@/common/routing/ProtectedRoute.tsx"
 import { useAppSelector } from "../hooks"
-import { selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { selectIsLoggedIn } from "@/app/app-slice.ts"
 
 export const Path = {
   Main: "/",
