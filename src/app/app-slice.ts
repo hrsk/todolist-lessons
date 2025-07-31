@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, isFulfilled, isPending, isRejected } from "@reduxjs/toolkit"
 import { RequestStatus } from "@/common/types"
 
 export const appSlice = createSlice({
@@ -29,6 +29,48 @@ export const appSlice = createSlice({
       state.isLoggedIn = action.payload.isLoggedIn
     }),
   }),
+  extraReducers: (builder) => {
+    builder
+      .addMatcher(
+        // (action) => {
+        //   //попадают абсолютно все экшены
+        //   console.log("predicate", action.type)
+        //   //если true, то мы попадем в следующий callback
+        //   return action.type.endsWith('/pending')
+        // },
+        isPending,
+        (state, action) => {
+          console.log("reducer", action.type)
+          state.isLoading = "loading"
+        },
+      )
+      .addMatcher(
+        // (action) => {
+        //   //попадают абсолютно все экшены
+        //   console.log("predicate", action.type)
+        //   //если true, то мы попадем в следующий callback
+        //   return action.type.endsWith("/fulfilled")
+        // },
+        isFulfilled,
+        (state, action) => {
+          console.log("reducer", action.type)
+          state.isLoading = "succeeded"
+        },
+      )
+      .addMatcher(
+        // (action) => {
+        //   //попадают абсолютно все экшены
+        //   console.log("predicate", action.type)
+        //   //если true, то мы попадем в следующий callback
+        //   return action.type.endsWith("/rejected")
+        // },
+        isRejected,
+        (state, action) => {
+          console.log("reducer", action.type)
+          state.isLoading = "failed"
+        },
+      )
+  },
 })
 
 export const { selectThemeMode, selectIsLoading, selectAppError, selectIsLoggedIn } = appSlice.selectors
