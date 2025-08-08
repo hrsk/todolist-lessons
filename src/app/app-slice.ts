@@ -42,7 +42,7 @@ export const appSlice = createSlice({
         // },
         isPending,
         (state, action) => {
-          console.log("reducer", action.type)
+          // console.log("reducer", action.type)
           if (
             todolistsApi.endpoints.getTodolists.matchPending(action)
             || tasksApi.endpoints.getTasks.matchPending(action)
@@ -60,8 +60,8 @@ export const appSlice = createSlice({
         //   return action.type.endsWith("/fulfilled")
         // },
         isFulfilled,
-        (state, action) => {
-          console.log("reducer", action.type)
+        (state) => {
+          // console.log("reducer", action.type)
           state.isLoading = "succeeded"
         },
       )

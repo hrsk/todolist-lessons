@@ -1,6 +1,7 @@
 import type { BaseResponse } from "@/common/types"
 import type { DomainTask, GetTasksResponse, UpdateTaskModel } from "./tasksApi.types"
 import { baseApi } from "@/app/api/baseApi.ts"
+import { PAGE_SIZE } from "@/common/constants"
 
 // export const _tasksApi = {
 //   getTasks(todolistId: string) {
@@ -22,9 +23,12 @@ import { baseApi } from "@/app/api/baseApi.ts"
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getTasks: build.query<GetTasksResponse, string>({
-      query: (todolistId: string) => `todo-lists/${todolistId}/tasks`,
-      providesTags: (_res, _err, todolistId) => [{ type: "Task", id: todolistId }],
+    getTasks: build.query<GetTasksResponse, { todolistId: string; params: { page: number } }>({
+      query: ({ todolistId, params }) => ({
+        url: `todo-lists/${todolistId}/tasks`,
+        params: {...params, count: PAGE_SIZE},
+      }),
+      providesTags: (_res, _err, { todolistId }) => [{ type: "Task", id: todolistId }],
     }),
     createTask: build.mutation<BaseResponse<{ item: DomainTask }>, { todolistId: string; title: string }>({
       query: (payload) => ({ method: "post", url: `todo-lists/${payload.todolistId}/tasks`, body: payload }),
