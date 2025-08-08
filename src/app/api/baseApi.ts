@@ -1,6 +1,6 @@
-// Во избежание ошибок импорт должен быть из `@reduxjs/toolkit/query/react`
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { AUTH_TOKEN } from "@/common/constants"
+import { handleError } from "@/common/utils/handleError.ts"
 
 export const baseApi = createApi({
   reducerPath: "baseApi",
@@ -13,6 +13,9 @@ export const baseApi = createApi({
         headers.set("Authorization", `Bearer ${localStorage.getItem(AUTH_TOKEN)}`)
       },
     })(args, api, extraOptions)
+
+    handleError(api, response)
+
     return response
   },
   endpoints: () => ({}),

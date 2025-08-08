@@ -11,9 +11,33 @@ type Props = {
 
 export const Tasks = ({ todolist }: Props) => {
   const { id, filter } = todolist
+  // const dispatch = useAppDispatch()
 
   const { data, isLoading } = useGetTasksQuery(id)
-  console.log(data)
+
+  // console.log(error, isError)
+
+  // if (error) {
+  //   dispatch(setAppError({ error: error.data.message }))
+  // }
+
+  // useEffect(() => {
+  //   if (error) {
+  //     if ("status" in error) {
+  //       //FetchBaseQueryError
+  //       const errMsg = "error" in error ? error.error : JSON.stringify(error.data)
+  //       //не безопасно
+  //       // const errMsg = "error" in error ? error.error : (error.data as { message: string }).message
+  //       dispatch(setAppError({ error: errMsg }))
+  //       // dispatch(setAppError({ error: (error as any).data.error }))
+  //     } else {
+  //       // SerializedError
+  //       dispatch(setAppError({ error: error.message || "some error occurred" }))
+  //     }
+  //   }
+  // }, [error])
+
+  // console.log(data)
   // const tasks = useAppSelector(selectTasks)
 
   // const dispatch = useAppDispatch()
