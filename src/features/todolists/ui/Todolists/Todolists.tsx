@@ -9,7 +9,10 @@ import { TodolistSkeleton } from "@/features/todolists/ui/Todolists/TodolistScel
 export const Todolists = () => {
   // const [skip, setSkip] = useState(true)
 
-  const { data: todolists, isLoading } = useGetTodolistsQuery()
+  const { data: todolists, isLoading } = useGetTodolistsQuery(undefined, {
+    pollingInterval: 900000,
+    skipPollingIfUnfocused: true,
+  })
   // const { data: todolists } = useGetTodolistsQuery(undefined, { skip })
 
   // const [trigger, {data: todolists}]= useLazyGetTodolistsQuery()
@@ -22,17 +25,17 @@ export const Todolists = () => {
   //   setSkip(false)
   // }
 
-    if (isLoading) {
-      return (
-        <Box sx={containerSx} style={{ gap: "32px" }}>
-          {Array(3)
-            .fill(null)
-            .map((_, id) => (
-              <TodolistSkeleton key={id} />
-            ))}
-        </Box>
-      )
-    }
+  if (isLoading) {
+    return (
+      <Box sx={containerSx} style={{ gap: "32px" }}>
+        {Array(3)
+          .fill(null)
+          .map((_, id) => (
+            <TodolistSkeleton key={id} />
+          ))}
+      </Box>
+    )
+  }
 
   return (
     <>
