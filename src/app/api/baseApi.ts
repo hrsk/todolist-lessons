@@ -6,7 +6,7 @@ export const baseApi = createApi({
   reducerPath: "baseApi",
   tagTypes: ["Todolist", "Task"],
   keepUnusedDataFor: 60,
-  refetchOnFocus: true,
+  // refetchOnFocus: true,
   refetchOnReconnect: true,
   baseQuery: async (args, api, extraOptions) => {
     const response = await fetchBaseQuery({
