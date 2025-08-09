@@ -34,6 +34,24 @@ export const TodolistTitle = ({ todolist }: Props) => {
     )
   }
 
+  // const deleteTodolistHandler = async () => {
+  //   const patchResult = dispatch(
+  //     todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
+  //       const index = state.findIndex((todo) => todo.id === todolistId)
+  //       if (index !== -1) state.splice(index, 1)
+  //       // const todolist = state.find((todolist) => todolist.id === todolistId)
+  //       // if (todolist) {
+  //       //   todolist.entityStatus = "loading"
+  //       // }
+  //     }),
+  //   )
+  //   try {
+  //     await deleteTodolist(todolistId).unwrap()
+  //   } catch {
+  //     patchResult.undo()
+  //   }
+  // }
+
   const deleteTodolistHandler = () => {
     changeTodolistStatus("loading")
     deleteTodolist(todolistId)

@@ -17,6 +17,21 @@ export const todolistsApi = baseApi.injectEndpoints({
     }),
     deleteTodolist: build.mutation<BaseResponse, string>({
       query: (todolistId: string) => ({ method: "delete", url: `todo-lists/${todolistId}` }),
+      async onQueryStarted(id: string, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
+            const index = state.findIndex((todolist) => todolist.id === id)
+            if (index !== -1) {
+              state.splice(index, 1)
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       invalidatesTags: ["Todolist"],
     }),
     changeTodolistTitle: build.mutation<BaseResponse, { todolistId: string; title: string }>({
