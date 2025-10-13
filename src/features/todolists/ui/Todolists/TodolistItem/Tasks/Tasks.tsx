@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/common/hooks"
-import { selectTasks } from "@/features/todolists/model/tasks-selectors"
+import { selectTasks } from "@/features/todolists/model/tasks-slice"
 import type { Todolist } from "@/features/todolists/model/todolists-slice"
 import { TaskItem } from "./TaskItem/TaskItem"
 import List from "@mui/material/List"
