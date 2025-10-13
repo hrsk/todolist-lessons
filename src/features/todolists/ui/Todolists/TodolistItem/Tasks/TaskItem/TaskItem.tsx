@@ -1,11 +1,11 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
 import {
-  changeTaskStatusAC,
-  changeTaskTitleAC,
-  deleteTaskAC,
+  changeTaskStatus,
+  changeTaskTitle,
+  removeTask,
   type Task,
-} from "@/features/todolists/model/tasks-reducer"
+} from "@/features/todolists/model/tasks-slice"
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
 import IconButton from "@mui/material/IconButton"
@@ -22,23 +22,23 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   const dispatch = useAppDispatch()
 
   const deleteTask = () => {
-    dispatch(deleteTaskAC({ todolistId, taskId: task.id }))
+    dispatch(removeTask({ todolistId, taskId: task.id }))
   }
 
-  const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
+  const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newStatusValue = e.currentTarget.checked
-    dispatch(changeTaskStatusAC({ todolistId, taskId: task.id, isDone: newStatusValue }))
+    dispatch(changeTaskStatus({ todolistId, taskId: task.id, isDone: newStatusValue }))
   }
 
-  const changeTaskTitle = (title: string) => {
-    dispatch(changeTaskTitleAC({ todolistId, taskId: task.id, title }))
+  const changeTaskTitleHandler = (title: string) => {
+    dispatch(changeTaskTitle({ todolistId, taskId: task.id, title }))
   }
 
   return (
     <ListItem sx={getListItemSx(task.isDone)}>
       <div>
-        <Checkbox checked={task.isDone} onChange={changeTaskStatus} />
-        <EditableSpan value={task.title} onChange={changeTaskTitle} />
+        <Checkbox checked={task.isDone} onChange={changeTaskStatusHandler} />
+        <EditableSpan value={task.title} onChange={changeTaskTitleHandler} />
       </div>
       <IconButton onClick={deleteTask}>
         <DeleteIcon />
