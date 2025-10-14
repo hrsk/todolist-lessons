@@ -1,5 +1,6 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit"
 import { DomainTodolist, Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
+import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 
 export const todolistsSlice = createSlice({
   name: "todolists",
@@ -10,8 +11,8 @@ export const todolistsSlice = createSlice({
     selectTodolists: (state) => state.todos,
   },
   reducers: (create) => ({
-    getTodos: create.reducer<{items: Todolist[]}>((state, action) => {
-      state.todos = action.payload.items.map(td => ({...td, filter: 'all'}))
+    setTodos: create.reducer<{ items: Todolist[] }>((state, action) => {
+      state.todos = action.payload.items.map((td) => ({ ...td, filter: "all" }))
     }),
     removeTodolist: create.reducer<{ todolistId: string }>((state, action) => {
       const index = state.todos.findIndex((todolist) => todolist.id === action.payload.todolistId)
@@ -25,7 +26,7 @@ export const todolistsSlice = createSlice({
         return { payload: { id, title } }
       },
       (state, action) => {
-        state.todos.push({ ...action.payload, filter: "all", order: 0, addedDate: '' })
+        state.todos.push({ ...action.payload, filter: "all", order: 0, addedDate: "" })
       },
     ),
     changeTodolistTitle: create.reducer<{ todolistId: string; title: string }>((state, action) => {
@@ -41,9 +42,28 @@ export const todolistsSlice = createSlice({
       }
     }),
   }),
+  extraReducers: (builder) => {
+    builder.addCase(fetchTodos.fulfilled, (state, action) => {
+      state.todos = action.payload.items.map((td) => ({ ...td, filter: "all" }))
+    })
+      .addCase(fetchTodos.rejected, (_state, _action) => {
+
+      })
+  },
 })
 
-export const { removeTodolist, createTodolist, changeTodolistFilter, changeTodolistTitle, getTodos } = todolistsSlice.actions
+export const fetchTodos = createAsyncThunk(`todolists/fetchTodos`, async (_arg, { dispatch, rejectWithValue }) => {
+  try {
+    const res = await todolistsApi.getTodolists()
+    dispatch(setTodos({ items: res.data }))
+    return { items: res.data }
+  } catch (e) {
+    return rejectWithValue(e)
+  }
+})
+
+export const { removeTodolist, createTodolist, changeTodolistFilter, changeTodolistTitle, setTodos } =
+  todolistsSlice.actions
 export const todolistsReducer = todolistsSlice.reducer
 export const { selectTodolists } = todolistsSlice.selectors
 
