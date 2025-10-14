@@ -9,7 +9,7 @@ export const Main = () => {
   const dispatch = useAppDispatch()
 
   const createTodolistHandler = (title: string) => {
-    dispatch(createTodolist(title))
+    dispatch(createTodolist({ title }))
   }
 
   return (
