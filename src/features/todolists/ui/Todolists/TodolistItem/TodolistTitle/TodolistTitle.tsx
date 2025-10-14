@@ -4,7 +4,7 @@ import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import styles from "./TodolistTitle.module.css"
-import { changeTodolistTitle, removeTodolist } from "@/features/todolists/model/todolists-slice.ts"
+import { removeTodolist, updateTodolistTitle } from "@/features/todolists/model/todolists-slice.ts"
 
 type Props = {
   todolist: DomainTodolist
@@ -20,7 +20,8 @@ export const TodolistTitle = ({ todolist }: Props) => {
   }
 
   const changeTodolistTitleHandler = (title: string) => {
-    dispatch(changeTodolistTitle({ todolistId, title }))
+    dispatch(updateTodolistTitle({ todolistId, title }))
+    // dispatch(changeTodolistTitle({ todolistId, title }))
   }
 
   return (
