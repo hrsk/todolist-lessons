@@ -1,19 +1,15 @@
+import { useAppDispatch } from "@/common/hooks"
 import { CreateItemForm } from "@/common/components/CreateItemForm/CreateItemForm"
+import { createTodolist } from "@/features/todolists/model/todolists-slice"
 import { Todolists } from "@/features/todolists/ui/Todolists/Todolists"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid2"
-import { useCreateTodolistMutation } from "@/features/todolists/api/todolistsApi.ts"
-import { CircularProgress } from "@mui/material";
-import styles from './App.module.css'
 
 export const Main = () => {
-  // const dispatch = useAppDispatch()
-
-  const [createTodolist, { isLoading }] = useCreateTodolistMutation()
+  const dispatch = useAppDispatch()
 
   const createTodolistHandler = (title: string) => {
-    // dispatch(createTodolist({ title }))
-    createTodolist(title)
+    dispatch(createTodolist({ title }))
   }
 
   return (
@@ -22,13 +18,7 @@ export const Main = () => {
         <CreateItemForm onCreateItem={createTodolistHandler} />
       </Grid>
       <Grid container spacing={4}>
-        {isLoading ? (
-          <div className={styles.circularProgressContainer}>
-            <CircularProgress size={150} thickness={3} />
-          </div>
-        ) : (
-          <Todolists />
-        )}
+        <Todolists />
       </Grid>
     </Container>
   )

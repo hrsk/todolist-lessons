@@ -1,70 +1,42 @@
-import type { DomainTodolist } from "@/features/todolists/model/todolists-slice"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
+import { fetchTasks, selectTasks } from "@/features/todolists/model/tasks-slice"
+import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { TaskItem } from "./TaskItem/TaskItem"
 import List from "@mui/material/List"
-import { TaskStatus } from "@/common/enums"
-import { useGetTasksQuery } from "@/features/todolists/api/tasksApi.ts"
-import { TasksSkeleton } from "@/features/todolists/ui/Todolists/TodolistItem/Tasks/TasksSkeleton/TasksSkeleton.tsx"
+import { useEffect } from "react"
 
 type Props = {
   todolist: DomainTodolist
 }
 
 export const Tasks = ({ todolist }: Props) => {
-  const { id, filter } = todolist
-  // const dispatch = useAppDispatch()
+  const { id: todolistId, filter } = todolist
 
-  const { data, isLoading } = useGetTasksQuery(id)
+  const tasks = useAppSelector(selectTasks)
 
-  // console.log(error, isError)
+  const dispatch = useAppDispatch()
 
-  // if (error) {
-  //   dispatch(setAppError({ error: error.data.message }))
-  // }
+  useEffect(() => {
+    dispatch(fetchTasks({ todolistId }))
+  }, [])
 
-  // useEffect(() => {
-  //   if (error) {
-  //     if ("status" in error) {
-  //       //FetchBaseQueryError
-  //       const errMsg = "error" in error ? error.error : JSON.stringify(error.data)
-  //       //не безопасно
-  //       // const errMsg = "error" in error ? error.error : (error.data as { message: string }).message
-  //       dispatch(setAppError({ error: errMsg }))
-  //       // dispatch(setAppError({ error: (error as any).data.error }))
-  //     } else {
-  //       // SerializedError
-  //       dispatch(setAppError({ error: error.message || "some error occurred" }))
-  //     }
-  //   }
-  // }, [error])
-
-  // console.log(data)
-  // const tasks = useAppSelector(selectTasks)
-
-  // const dispatch = useAppDispatch()
-  // useEffect(() => {
-  //   dispatch(fetchTasks(id))
-  // }, [])
-
-  // const todolistTasks = tasks[id]
-  const todolistTasks = data?.items
+  const todolistTasks = tasks[todolistId]
   let filteredTasks = todolistTasks
   if (filter === "active") {
-    filteredTasks = todolistTasks?.filter((task) => task.status === TaskStatus.New)
+    filteredTasks = todolistTasks.filter((task) => !task.isDone)
   }
   if (filter === "completed") {
-    filteredTasks = todolistTasks?.filter((task) => task.status === TaskStatus.Completed)
-  }
-
-  if (isLoading) {
-    return <TasksSkeleton />
+    filteredTasks = todolistTasks.filter((task) => task.isDone)
   }
 
   return (
     <>
-      {filteredTasks?.length === 0 ? (
+      {filteredTasks && filteredTasks.length === 0 ? (
         <p>Тасок нет</p>
       ) : (
-        <List>{filteredTasks?.map((task) => <TaskItem key={task.id} task={task} todolistId={id} />)}</List>
+        <List>
+          {filteredTasks && filteredTasks.map((task) => <TaskItem key={task.id} task={task} todolistId={todolistId} />)}
+        </List>
       )}
     </>
   )
