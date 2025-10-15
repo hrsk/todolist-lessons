@@ -24,7 +24,7 @@ export const TaskItem = ({ task, todolistId }: Props) => {
 
   const changeTaskStatusHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const newStatusValue = e.currentTarget.checked
-    dispatch(changeTaskStatus({ todolistId, taskId: task.id, isDone: newStatusValue }))
+    dispatch(changeTaskStatus({ todolistId, taskId: task.id, status: newStatusValue ? TaskStatus.Completed : TaskStatus.New }))
   }
 
   const changeTaskTitleHandler = (title: string) => {
