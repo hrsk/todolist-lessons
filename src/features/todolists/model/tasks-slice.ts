@@ -1,4 +1,4 @@
-import { TaskStatus } from "@/common/enums"
+import { TaskPriority, TaskStatus } from "@/common/enums"
 import { createAppSlice } from "@/common/utils"
 import { nanoid } from "@reduxjs/toolkit"
 import { tasksApi } from "../api/tasksApi"
@@ -39,7 +39,18 @@ export const tasksSlice = createAppSlice({
       }
     }),
     createTask: create.reducer<{ todolistId: string; title: string }>((state, action) => {
-      const newTask: Task = { title: action.payload.title, isDone: false, id: nanoid() }
+      const newTask: DomainTask = {
+        title: action.payload.title,
+        todoListId: action.payload.todolistId,
+        startDate: '',
+        priority: TaskPriority.Low,
+        description: '',
+        deadline: '',
+        status: TaskStatus.New,
+        addedDate: '',
+        order: 0,
+        id: nanoid(),
+      }
       state.tasks[action.payload.todolistId].unshift(newTask)
     }),
     changeTaskStatus: create.reducer<{ todolistId: string; taskId: string; isDone: boolean }>((state, action) => {
