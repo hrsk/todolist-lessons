@@ -21,7 +21,6 @@ export const TodolistTitle = ({ todolist }: Props) => {
 
   const changeTodolistTitleHandler = (title: string) => {
     dispatch(updateTodolistTitle({ todolistId, title }))
-    // dispatch(changeTodolistTitle({ todolistId, title }))
   }
 
   return (
