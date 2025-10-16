@@ -1,6 +1,7 @@
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "../api/tasksApi.types"
+import { setAppStatus } from "@/app/app-slice.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -12,11 +13,14 @@ export const tasksSlice = createAppSlice({
   },
   reducers: (create) => ({
     fetchTasks: create.asyncThunk(
-      async (arg: { todolistId: string }, { rejectWithValue }) => {
+      async (arg: { todolistId: string }, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setAppStatus({ status: "idle" }))
           const res = await tasksApi.getTasks(arg.todolistId)
+          dispatch(setAppStatus({ status: "succeeded" }))
           return { todolistId: arg.todolistId, items: res.data.items }
         } catch (error) {
+          dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(error)
         }
       },
@@ -30,12 +34,15 @@ export const tasksSlice = createAppSlice({
       },
     ),
     removeTask: create.asyncThunk(
-      async (arg: { todolistId: string; taskId: string }, { rejectWithValue }) => {
+      async (arg: { todolistId: string; taskId: string }, { dispatch, rejectWithValue }) => {
         const { todolistId, taskId } = arg
         try {
+          dispatch(setAppStatus({ status: "pending" }))
           await tasksApi.deleteTask({ todolistId, taskId })
+          dispatch(setAppStatus({ status: "succeeded" }))
           return { todolistId, taskId }
         } catch (error) {
+          dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(error)
         }
       },
@@ -51,12 +58,15 @@ export const tasksSlice = createAppSlice({
       },
     ),
     createTask: create.asyncThunk(
-      async (arg: { todolistId: string; title: string }, { rejectWithValue }) => {
+      async (arg: { todolistId: string; title: string }, { dispatch, rejectWithValue }) => {
         const { todolistId, title } = arg
         try {
+          dispatch(setAppStatus({ status: "pending" }))
           const res = await tasksApi.createTask({ todolistId, title })
+          dispatch(setAppStatus({ status: "succeeded" }))
           return { task: res.data.data.item }
         } catch (error) {
+          dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(error)
         }
       },
@@ -71,14 +81,17 @@ export const tasksSlice = createAppSlice({
     updateTask: create.asyncThunk(
       async (
         arg: { todolistId: string; taskId: string; updateModel: Partial<UpdateTaskModel> },
-        { rejectWithValue },
+        { dispatch, rejectWithValue },
       ) => {
         const { todolistId, taskId, updateModel } = arg
 
         try {
+          dispatch(setAppStatus({ status: "pending" }))
           const res = await tasksApi.updateTask({ todolistId, taskId, model: updateModel })
+          dispatch(setAppStatus({ status: "succeeded" }))
           return { task: res.data.data.item }
         } catch (e) {
+          dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)
         }
       },
