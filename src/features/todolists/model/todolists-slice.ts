@@ -1,8 +1,10 @@
 import { createAppSlice } from "@/common/utils"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { setAppError, setAppStatus } from "@/app/app-slice.ts"
+import { setAppStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/enums"
+import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
+import { handleServerNetworkError } from "@/common/utils/handleServerNetworkError.ts"
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -45,12 +47,14 @@ export const todolistsSlice = createAppSlice({
             dispatch(setAppStatus({ status: "succeeded" }))
             return { todolistId, title }
           } else {
-            dispatch(setAppError({ error: res.data.messages[0] }))
-            dispatch(setAppStatus({ status: "failed" }))
+            handleServerAppError(res.data, dispatch)
+            // dispatch(setAppError({ error: res.data.messages[0] }))
+            // dispatch(setAppStatus({ status: "failed" }))
             return rejectWithValue(null)
           }
         } catch (e) {
-          dispatch(setAppStatus({ status: "failed" }))
+          handleServerNetworkError(e, dispatch)
+          // dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)
         }
       },
@@ -75,12 +79,14 @@ export const todolistsSlice = createAppSlice({
             dispatch(setAppStatus({ status: "succeeded" }))
             return { todolist: res.data.data.item }
           } else {
-            dispatch(setAppError({ error: res.data.messages[0] }))
-            dispatch(setAppStatus({ status: "failed" }))
+            handleServerAppError(res.data, dispatch)
+            // dispatch(setAppError({ error: res.data.messages[0] }))
+            // dispatch(setAppStatus({ status: "failed" }))
             return rejectWithValue(null)
           }
         } catch (e) {
-          dispatch(setAppStatus({ status: "failed" }))
+          handleServerNetworkError(e, dispatch)
+          // dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)
         }
       },
