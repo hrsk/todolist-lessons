@@ -1,7 +1,8 @@
 import { createAppSlice } from "@/common/utils"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { setAppStatus } from "@/app/app-slice.ts"
+import { setAppError, setAppStatus } from "@/app/app-slice.ts"
+import { ResultCode } from "@/common/enums"
 
 export const todolistsSlice = createAppSlice({
   name: "todolists",
@@ -38,9 +39,16 @@ export const todolistsSlice = createAppSlice({
         const { todolistId, title } = arg
         try {
           dispatch(setAppStatus({ status: "pending" }))
-          await todolistsApi.changeTodolistTitle({ id: todolistId, title })
-          dispatch(setAppStatus({ status: "succeeded" }))
-          return { todolistId, title }
+
+          const res = await todolistsApi.changeTodolistTitle({ id: todolistId, title })
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatus({ status: "succeeded" }))
+            return { todolistId, title }
+          } else {
+            dispatch(setAppError({ error: res.data.messages[0] }))
+            dispatch(setAppStatus({ status: "failed" }))
+            return rejectWithValue(null)
+          }
         } catch (e) {
           dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)
@@ -63,8 +71,14 @@ export const todolistsSlice = createAppSlice({
         try {
           dispatch(setAppStatus({ status: "pending" }))
           const res = await todolistsApi.createTodolist(arg.title)
-          dispatch(setAppStatus({ status: "succeeded" }))
-          return { todolist: res.data.data.item }
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatus({ status: "succeeded" }))
+            return { todolist: res.data.data.item }
+          } else {
+            dispatch(setAppError({ error: res.data.messages[0] }))
+            dispatch(setAppStatus({ status: "failed" }))
+            return rejectWithValue(null)
+          }
         } catch (e) {
           dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)

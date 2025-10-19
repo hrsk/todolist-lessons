@@ -1,7 +1,8 @@
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
 import { DomainTask, UpdateTaskModel } from "../api/tasksApi.types"
-import { setAppStatus } from "@/app/app-slice.ts"
+import { setAppError, setAppStatus } from "@/app/app-slice.ts"
+import { ResultCode } from "@/common/enums"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -63,8 +64,14 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatus({ status: "pending" }))
           const res = await tasksApi.createTask({ todolistId, title })
-          dispatch(setAppStatus({ status: "succeeded" }))
-          return { task: res.data.data.item }
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatus({ status: "succeeded" }))
+            return { task: res.data.data.item }
+          } else {
+            dispatch(setAppError({ error: res.data.messages[0] }))
+            dispatch(setAppStatus({ status: "failed" }))
+            return rejectWithValue(null)
+          }
         } catch (error) {
           dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(error)
@@ -88,8 +95,14 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatus({ status: "pending" }))
           const res = await tasksApi.updateTask({ todolistId, taskId, model: updateModel })
-          dispatch(setAppStatus({ status: "succeeded" }))
-          return { task: res.data.data.item }
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatus({ status: "succeeded" }))
+            return { task: res.data.data.item }
+          } else {
+            dispatch(setAppError({ error: res.data.messages[0] }))
+            dispatch(setAppStatus({ status: "failed" }))
+            return rejectWithValue(null)
+          }
         } catch (e) {
           dispatch(setAppStatus({ status: "failed" }))
           return rejectWithValue(e)
