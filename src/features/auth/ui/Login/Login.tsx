@@ -1,52 +1,109 @@
 import { selectThemeMode } from "@/app/app-slice"
 import { useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
-import FormLabel from '@mui/material/FormLabel'
+import Button from "@mui/material/Button"
+import Checkbox from "@mui/material/Checkbox"
+import FormControl from "@mui/material/FormControl"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import FormGroup from "@mui/material/FormGroup"
+import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
-import TextField from '@mui/material/TextField'
+import TextField from "@mui/material/TextField"
+import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import styles from "./Login.module.css"
+import { LoginInputs } from "@/common/types"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
 
   const theme = getTheme(themeMode)
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false } })
+
+  const onSubmit: SubmitHandler<LoginInputs> = (data: LoginInputs) => {
+    console.log(data)
+    reset()
+  }
+
   return (
-    <Grid container justifyContent={'center'}>
-      <FormControl>
-        <FormLabel>
-          <p>
-            To login get registered
-            <a
-              style={{ color: theme.palette.primary.main, marginLeft: "5px" }}
-              href="https://social-network.samuraijs.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              here
-            </a>
-          </p>
-          <p>or use common test account credentials:</p>
-          <p>
-            <b>Email:</b> free@samuraijs.com
-          </p>
-          <p>
-            <b>Password:</b> free
-          </p>
-        </FormLabel>
-        <FormGroup>
-          <TextField label="Email" margin="normal" />
-          <TextField type="password" label="Password" margin="normal" />
-          <FormControlLabel label="Remember me" control={<Checkbox />} />
-          <Button type="submit" variant="contained" color="primary">
-            Login
-          </Button>
-        </FormGroup>
-      </FormControl>
+    <Grid container justifyContent={"center"}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormControl>
+          <FormLabel>
+            <p>
+              To login get registered
+              <a
+                style={{ color: theme.palette.primary.main, marginLeft: "5px" }}
+                href="https://social-network.samuraijs.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                here
+              </a>
+            </p>
+            <p>or use common test account credentials:</p>
+            <p>
+              <b>Email:</b> free@samuraijs.com
+            </p>
+            <p>
+              <b>Password:</b> free
+            </p>
+          </FormLabel>
+          <FormGroup>
+            <TextField
+              label="Email"
+              margin="normal"
+              error={!!errors.email}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                  message: "Incorrect email address",
+                },
+              })}
+            />
+            {errors.email && <span className={styles.errorMessage}>{errors.email.message}</span>}
+            <TextField
+              type="password"
+              label="Password"
+              margin="normal"
+              {...register("password", {
+                required: "Password is required",
+                pattern: {
+                  value: /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "]).*$/,
+                  message: "Incorrect password",
+                },
+              })}
+            />
+            {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
+
+            <FormControlLabel
+              label="remember me"
+              control={
+                <Controller
+                  name={"rememberMe"}
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Checkbox onChange={(e) => onChange(e.target.checked)} checked={value} />
+                  )}
+                  // render={({ field: { value, ...rest } }) => <Checkbox {...rest} checked={value} />}
+                />
+              }
+              {...register("rememberMe")}
+            />
+
+            <Button type="submit" variant="contained" color="primary">
+              Login
+            </Button>
+          </FormGroup>
+        </FormControl>
+      </form>
     </Grid>
   )
 }
