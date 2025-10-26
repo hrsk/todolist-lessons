@@ -1,5 +1,4 @@
 import "./App.css"
-import { Main } from "@/app/Main"
 import { Header } from "@/common/components/Header/Header"
 import { useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
@@ -7,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline"
 import { ThemeProvider } from "@mui/material/styles"
 import { selectAppStatus, selectThemeMode } from "@/app/app-slice.ts"
 import { LinearProgress } from "@mui/material"
+import { Routing } from "@/common/routing"
 
 export const App = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -20,7 +20,7 @@ export const App = () => {
         <CssBaseline />
         <Header />
         {appStatus === "pending" && <LinearProgress />}
-        <Main />
+        <Routing />
       </div>
     </ThemeProvider>
   )
