@@ -13,3 +13,9 @@ export type BaseResponse<T = {}> = {
 export type RequestStatus = "idle" | "pending" | "succeeded" | "failed"
 
 export type Nullable<T> = T | null
+
+export type LoginInputs = {
+  email: string
+  password: string
+  rememberMe: boolean
+}
