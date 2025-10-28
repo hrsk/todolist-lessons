@@ -38,7 +38,7 @@ export const domainTaskSchema = z.object({
   id: z.string(),
   todoListId: z.string(),
   order: z.number(),
-  addedDate: z.string(),
+  addedDate: z.iso.datetime({ local: true }),
   status: z.enum(TaskStatus),
   priority: z.enum(TaskPriority),
 })
