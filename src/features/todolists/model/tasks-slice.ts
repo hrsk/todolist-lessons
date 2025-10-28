@@ -1,6 +1,6 @@
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
-import { DomainTask, UpdateTaskModel } from "../api/tasksApi.types"
+import { DomainTask, domainTaskSchema, UpdateTaskModel } from "../api/tasksApi.types"
 import { setAppStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/enums"
 import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
@@ -23,6 +23,7 @@ export const tasksSlice = createAppSlice({
           try {
             dispatch(setAppStatus({ status: "idle" }))
             const res = await tasksApi.getTasks(arg.todolistId)
+            domainTaskSchema.array().parse(res.data.items)
             dispatch(setAppStatus({ status: "succeeded" }))
             return { todolistId: arg.todolistId, items: res.data.items }
           } catch (error) {
