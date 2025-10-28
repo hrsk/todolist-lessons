@@ -14,8 +14,8 @@ export type RequestStatus = "idle" | "pending" | "succeeded" | "failed"
 
 export type Nullable<T> = T | null
 
-export type LoginInputs = {
-  email: string
-  password: string
-  rememberMe: boolean
-}
+// export type LoginInputs = {
+//   email: string
+//   password: string
+//   rememberMe: boolean
+// }
