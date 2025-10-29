@@ -61,19 +61,39 @@ export const Login = () => {
             </p>
           </FormLabel>
           <FormGroup>
-            <TextField
-              label="Email"
-              margin="normal"
-              error={!!errors.email}
+            <FormControlLabel
+              label={"Email"}
+              control={
+                <Controller
+                  name={"email"}
+                  control={control}
+                  render={({field: {onChange, value}}) => (
+                    <TextField placeholder={"Email"} onChange={onChange} value={value} margin={"normal"} error={!!errors.email}  />
+                  )}
+                />
+              }
               {...register("email")}
             />
+
+            {/*<TextField*/}
+            {/*  label="Email"*/}
+            {/*  margin="normal"*/}
+            {/*  error={!!errors.email}*/}
+            {/*  {...register("email")}*/}
+            {/*/>*/}
             {errors.email && <span className={styles.errorMessage}>{errors.email.message}</span>}
-            <TextField
-              type="password"
-              label="Password"
-              margin="normal"
+            <FormControlLabel
+              label={"Password"}
+              control={
+                <Controller
+                  name={"password"}
+                  control={control}
+                  render={({field: {onChange, value}}) => <TextField placeholder={"Password"} onChange={onChange} value={value} margin={"normal"} error={!!errors.password} />}
+                />
+              }
               {...register("password")}
             />
+            {/*<TextField type="password" label="Password" margin="normal" {...register("password")} />*/}
             {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
 
             <FormControlLabel
