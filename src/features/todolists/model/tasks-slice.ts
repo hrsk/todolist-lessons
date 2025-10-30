@@ -1,6 +1,6 @@
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "../api/tasksApi"
-import { DomainTask, domainTaskSchema, UpdateTaskModel } from "../api/tasksApi.types"
+import { DomainTask, getTasksResponseSchema, taskOperationSchema, UpdateTaskModel } from "../api/tasksApi.types"
 import { setAppStatus } from "@/app/app-slice.ts"
 import { ResultCode } from "@/common/enums"
 import { handleServerAppError } from "@/common/utils/handleServerAppError.ts"
@@ -23,10 +23,11 @@ export const tasksSlice = createAppSlice({
           try {
             dispatch(setAppStatus({ status: "idle" }))
             const res = await tasksApi.getTasks(arg.todolistId)
-            domainTaskSchema.array().parse(res.data.items)
+            getTasksResponseSchema.parse(res.data)
             dispatch(setAppStatus({ status: "succeeded" }))
             return { todolistId: arg.todolistId, items: res.data.items }
           } catch (error) {
+            console.log(error)
             dispatch(setAppStatus({ status: "failed" }))
             return rejectWithValue(null)
           }
@@ -53,7 +54,7 @@ export const tasksSlice = createAppSlice({
               handleServerAppError(res.data, dispatch)
               return rejectWithValue(null)
             }
-          } catch (error) {
+          } catch (error: any) {
             handleServerNetworkError(error, dispatch)
             return rejectWithValue(null)
           }
@@ -76,6 +77,7 @@ export const tasksSlice = createAppSlice({
             dispatch(setAppStatus({ status: "pending" }))
             const res = await tasksApi.createTask({ todolistId, title })
             if (res.data.resultCode === ResultCode.Success) {
+              taskOperationSchema.parse(res.data)
               dispatch(setAppStatus({ status: "succeeded" }))
               return { task: res.data.data.item }
             } else {
@@ -83,6 +85,7 @@ export const tasksSlice = createAppSlice({
               return rejectWithValue(null)
             }
           } catch (error: any) {
+            console.log(error)
             handleServerNetworkError(error, dispatch)
             return rejectWithValue(error)
           }
@@ -104,6 +107,7 @@ export const tasksSlice = createAppSlice({
           try {
             dispatch(setAppStatus({ status: "pending" }))
             const res = await tasksApi.updateTask({ todolistId, taskId, model: updateModel })
+            taskOperationSchema.parse(res.data)
             if (res.data.resultCode === ResultCode.Success) {
               dispatch(setAppStatus({ status: "succeeded" }))
               return { task: res.data.data.item }
@@ -112,6 +116,7 @@ export const tasksSlice = createAppSlice({
               return rejectWithValue(null)
             }
           } catch (error: any) {
+            console.dir(error)
             handleServerNetworkError(error, dispatch)
             return rejectWithValue(null)
           }
