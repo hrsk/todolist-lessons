@@ -1,6 +1,5 @@
-import { useAppDispatch, useAppSelector } from "@/common/hooks"
+import { useAppSelector } from "@/common/hooks"
 import { CreateItemForm } from "@/common/components/CreateItemForm/CreateItemForm"
-import { createTodolist } from "@/features/todolists/model/todolists-slice"
 import { Todolists } from "@/features/todolists/ui/Todolists/Todolists"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid2"
@@ -9,19 +8,21 @@ import { selectAppError } from "@/app/app-slice.ts"
 import { selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
 import { Navigate } from "react-router"
 import { PATHS } from "@/common/routing"
+import { useAddTodolistMutation } from "@/features/todolists/api/todolistsApi.ts"
 
 export const Main = () => {
-  const dispatch = useAppDispatch()
 
   const isError = useAppSelector(selectAppError)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
+  const [createTodolist] = useAddTodolistMutation({})
+
   const createTodolistHandler = (title: string) => {
-    dispatch(createTodolist({ title }))
+    createTodolist(title)
   }
 
   if (!isLoggedIn) {
-    return <Navigate to={PATHS.Login}/>
+    return <Navigate to={PATHS.Login} />
   }
 
   return (
