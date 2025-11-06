@@ -6,3 +6,13 @@ export const authResponseSchema = createBaseResponseSchema(
 )
 
 export type authResponse = z.infer<typeof authResponseSchema>
+
+export const meResponseSchema = createBaseResponseSchema(
+  z.object({
+    id: z.number().nonnegative(),
+    email: z.string(),
+    login: z.string(),
+  }),
+)
+
+export type meResponse = z.infer<typeof meResponseSchema>

@@ -66,9 +66,33 @@ export const authSlice = createAppSlice({
         },
       },
     ),
+    authMe: create.asyncThunk(
+      async (_args, { dispatch, rejectWithValue }) => {
+        try {
+          dispatch(setAppStatus({ status: "pending" }))
+          const res = await authApi.me()
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatus({ status: "succeeded" }))
+            return { isLoggedIn: true, userData: res.data.data }
+          } else {
+            dispatch(setAppStatus({ status: "failed" }))
+            handleServerAppError(res.data, dispatch)
+            return rejectWithValue(null)
+          }
+        } catch (error) {
+          handleServerNetworkError(error, dispatch)
+          return rejectWithValue(null)
+        }
+      },
+      {
+        fulfilled: (state, action) => {
+          state.isLoggedIn = action.payload.isLoggedIn
+        },
+      },
+    ),
   }),
 })
 
 export const { selectIsLoggedIn } = authSlice.selectors
-export const { login, logout } = authSlice.actions
+export const { login, logout, authMe } = authSlice.actions
 export const authReducer = authSlice.reducer
