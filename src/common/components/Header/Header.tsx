@@ -10,9 +10,12 @@ import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
 import { changeThemeMode } from "@/app/app-slice.ts"
+import { logout, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { PATHS } from "@/common/routing"
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const dispatch = useAppDispatch()
 
@@ -20,6 +23,10 @@ export const Header = () => {
 
   const changeMode = () => {
     dispatch(changeThemeMode({ themeMode: themeMode === "light" ? "dark" : "light" }))
+  }
+
+  const handleLogout = () => {
+    dispatch(logout())
   }
 
   return (
@@ -30,7 +37,13 @@ export const Header = () => {
             <MenuIcon />
           </IconButton>
           <div>
-            <NavButton>Sign in</NavButton>
+            {isLoggedIn ? (
+              <NavButton onClick={handleLogout}>Logout</NavButton>
+            ) : (
+              <NavButton as={"a"} href={PATHS.Login}>
+                Sign in
+              </NavButton>
+            )}
             <NavButton>Sign up</NavButton>
             <NavButton background={theme.palette.primary.dark}>Faq</NavButton>
             <Switch color={"default"} onChange={changeMode} />

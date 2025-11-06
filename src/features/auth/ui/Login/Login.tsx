@@ -1,5 +1,5 @@
 import { selectThemeMode } from "@/app/app-slice"
-import { useAppSelector } from "@/common/hooks"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
@@ -14,9 +14,19 @@ import styles from "./Login.module.css"
 // import { LoginInputs } from "@/common/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
+import { login, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { useEffect } from "react"
+import { Navigate, useNavigate } from "react-router"
+import { PATHS } from "@/common/routing"
+import { EMAIL, PASSWORD } from "@/common/constants"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
+
+  const dispatch = useAppDispatch()
+
+  const navigate = useNavigate()
 
   const theme = getTheme(themeMode)
 
@@ -28,13 +38,24 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: false },
+    defaultValues: { email: EMAIL, password: "", rememberMe: false },
   })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data: LoginInputs) => {
-    console.log(data)
-    reset()
+    dispatch(login(data))
+      // .unwrap()
+      // .then(() => {
+      //   navigate(PATHS.Main)
+      // })
+    // reset()
   }
+
+  if (isLoggedIn) {
+    return <Navigate to={PATHS.Main}/>
+  }
+  // useEffect(() => {
+  //   navigate(PATHS.Main)
+  // }, [isLoggedIn])
 
   return (
     <Grid container justifyContent={"center"}>
@@ -67,8 +88,14 @@ export const Login = () => {
                 <Controller
                   name={"email"}
                   control={control}
-                  render={({field: {onChange, value}}) => (
-                    <TextField placeholder={"Email"} onChange={onChange} value={value} margin={"normal"} error={!!errors.email}  />
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      placeholder={"Email"}
+                      onChange={onChange}
+                      value={value}
+                      margin={"normal"}
+                      error={!!errors.email}
+                    />
                   )}
                 />
               }
@@ -88,7 +115,16 @@ export const Login = () => {
                 <Controller
                   name={"password"}
                   control={control}
-                  render={({field: {onChange, value}}) => <TextField placeholder={"Password"} onChange={onChange} value={value} margin={"normal"} error={!!errors.password} />}
+                  render={({ field: { onChange, value } }) => (
+                    <TextField
+                      type={'password'}
+                      placeholder={"Password"}
+                      onChange={onChange}
+                      value={value}
+                      margin={"normal"}
+                      error={!!errors.password}
+                    />
+                  )}
                 />
               }
               {...register("password")}
