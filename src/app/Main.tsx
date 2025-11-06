@@ -6,14 +6,22 @@ import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid2"
 import { Notification } from "@/common/components"
 import { selectAppError } from "@/app/app-slice.ts"
+import { selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
+import { Navigate } from "react-router"
+import { PATHS } from "@/common/routing"
 
 export const Main = () => {
   const dispatch = useAppDispatch()
 
   const isError = useAppSelector(selectAppError)
+  const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const createTodolistHandler = (title: string) => {
     dispatch(createTodolist({ title }))
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to={PATHS.Login}/>
   }
 
   return (
