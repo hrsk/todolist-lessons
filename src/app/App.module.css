@@ -1,0 +1,11 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+}
+.circularProgress {
+    position: fixed;
+    top: 30%;
+    text-align: center;
+    width: 100%;
+}
