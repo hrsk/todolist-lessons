@@ -1,18 +1,17 @@
 import type { DomainTodolist, Todolist } from "./todolistsApi.types"
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { AUTH_TOKEN } from "@/common/constants"
 import { BaseResponse } from "@/common/types"
+import { baseApi } from "@/app/baseApi.ts"
 
-export const todolistsApi = createApi({
-  reducerPath: "todolists",
-  tagTypes: ["Todolist"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `https://social-network.samuraijs.com/api/1.1`,
-    headers: {
-      "API-KEY": import.meta.env.VITE_API_KEY,
-    },
-    prepareHeaders: (headers) => headers.set("Authorization", `Bearer ${localStorage.getItem(AUTH_TOKEN)}`),
-  }),
+export const todolistsApi = baseApi.injectEndpoints({
+  // reducerPath: "todolists",
+  // tagTypes: ["Todolist"],
+  // baseQuery: fetchBaseQuery({
+  //   baseUrl: `https://social-network.samuraijs.com/api/1.1`,
+  //   headers: {
+  //     "API-KEY": import.meta.env.VITE_API_KEY,
+  //   },
+  //   prepareHeaders: (headers) => headers.set("Authorization", `Bearer ${localStorage.getItem(AUTH_TOKEN)}`),
+  // }),
   endpoints: (build) => ({
     getTodos: build.query<DomainTodolist[], void>({
       providesTags: ["Todolist"],
