@@ -1,4 +1,4 @@
-import { selectThemeMode } from "@/app/app-slice"
+import { selectIsLoggedIn, selectThemeMode, setIsLoggedIn } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
@@ -11,22 +11,19 @@ import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import styles from "./Login.module.css"
-// import { LoginInputs } from "@/common/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
-import { login, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
-import { useEffect } from "react"
-import { Navigate, useNavigate } from "react-router"
+import { Navigate } from "react-router"
 import { PATHS } from "@/common/routing"
-import { EMAIL, PASSWORD } from "@/common/constants"
+import { AUTH_TOKEN, EMAIL } from "@/common/constants"
+import { useLoginMutation } from "@/features/auth/api/authApi.ts"
+import { ResultCode } from "@/common/enums"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
   const dispatch = useAppDispatch()
-
-  const navigate = useNavigate()
 
   const theme = getTheme(themeMode)
 
@@ -41,17 +38,25 @@ export const Login = () => {
     defaultValues: { email: EMAIL, password: "", rememberMe: false },
   })
 
+  const [login] = useLoginMutation()
+
   const onSubmit: SubmitHandler<LoginInputs> = (data: LoginInputs) => {
-    dispatch(login(data))
-      // .unwrap()
-      // .then(() => {
-      //   navigate(PATHS.Main)
-      // })
+    login(data).then((res) => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        dispatch(setIsLoggedIn({ isLoggedIn: true }))
+        localStorage.setItem(AUTH_TOKEN, res.data.data.token)
+        reset()
+      }
+    })
+    // .unwrap()
+    // .then(() => {
+    //   navigate(PATHS.Main)
+    // })
     // reset()
   }
 
   if (isLoggedIn) {
-    return <Navigate to={PATHS.Main}/>
+    return <Navigate to={PATHS.Main} />
   }
   // useEffect(() => {
   //   navigate(PATHS.Main)
@@ -117,7 +122,7 @@ export const Login = () => {
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <TextField
-                      type={'password'}
+                      type={"password"}
                       placeholder={"Password"}
                       onChange={onChange}
                       value={value}

@@ -1,4 +1,4 @@
-import { selectThemeMode } from "@/app/app-slice"
+import { selectIsLoggedIn, selectThemeMode, setIsLoggedIn } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { containerSx } from "@/common/styles"
 import { getTheme } from "@/common/theme"
@@ -10,8 +10,10 @@ import IconButton from "@mui/material/IconButton"
 import Switch from "@mui/material/Switch"
 import Toolbar from "@mui/material/Toolbar"
 import { changeThemeMode } from "@/app/app-slice.ts"
-import { logout, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
 import { PATHS } from "@/common/routing"
+import { useLogoutMutation } from "@/features/auth/api/authApi.ts"
+import { AUTH_TOKEN } from "@/common/constants"
+import { ResultCode } from "@/common/enums"
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -21,12 +23,19 @@ export const Header = () => {
 
   const theme = getTheme(themeMode)
 
+  const [logout] = useLogoutMutation()
+
   const changeMode = () => {
     dispatch(changeThemeMode({ themeMode: themeMode === "light" ? "dark" : "light" }))
   }
 
   const handleLogout = () => {
-    dispatch(logout())
+    logout().then(res => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        dispatch(setIsLoggedIn({ isLoggedIn: false }))
+        localStorage.removeItem(AUTH_TOKEN)
+      }
+    })
   }
 
   return (
