@@ -6,7 +6,7 @@ import { ThemeProvider } from "@mui/material/styles"
 import { selectAppStatus, selectThemeMode, setIsLoggedIn } from "@/app/app-slice.ts"
 import { CircularProgress, LinearProgress } from "@mui/material"
 import { Routing } from "@/common/routing"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import styles from "./App.module.css"
 import { useMeQuery } from "@/features/auth/api/authApi.ts"
 import { ResultCode } from "@/common/enums"
@@ -19,6 +19,8 @@ export const App = () => {
 
   const theme = getTheme(themeMode)
 
+  const [initialized, setInitialized] = useState<boolean>(false)
+
   const { data, isLoading } = useMeQuery()
 
   // const [isAuth, setIsAuth] = useState<boolean>(false)
@@ -27,6 +29,7 @@ export const App = () => {
     if (isLoading) return
     if (data?.resultCode === ResultCode.Success) {
       dispatch(setIsLoggedIn({ isLoggedIn: true }))
+      setInitialized(true)
     }
     // dispatch(authMe())
     //   .unwrap()
@@ -35,7 +38,7 @@ export const App = () => {
     //   })
   }, [isLoading])
 
-  if (isLoading) {
+  if (!initialized) {
     return (
       <div className={styles.circularProgress}>
         <CircularProgress size={150} thickness={3} />
