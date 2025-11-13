@@ -6,14 +6,7 @@ import styles from "@/app/App.module.css"
 import { CircularProgress } from "@mui/material"
 
 export const Todolists = () => {
-  // const todolists = useAppSelector(selectTodolists)
-
   const { data: todolists, isFetching } = useGetTodosQuery()
-  // const dispatch = useAppDispatch()
-
-  // useEffect(() => {
-  // dispatch(fetchTodos())
-  // }, [])
 
   if (isFetching) {
     return (
