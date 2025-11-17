@@ -14,6 +14,7 @@ import { PATHS } from "@/common/routing"
 import { useLogoutMutation } from "@/features/auth/api/authApi.ts"
 import { AUTH_TOKEN } from "@/common/constants"
 import { ResultCode } from "@/common/enums"
+import { baseApi } from "@/app/baseApi.ts"
 
 export const Header = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -30,12 +31,16 @@ export const Header = () => {
   }
 
   const handleLogout = () => {
-    logout().then(res => {
-      if (res.data?.resultCode === ResultCode.Success) {
-        dispatch(setIsLoggedIn({ isLoggedIn: false }))
-        localStorage.removeItem(AUTH_TOKEN)
-      }
-    })
+    logout()
+      .then((res) => {
+        if (res.data?.resultCode === ResultCode.Success) {
+          dispatch(setIsLoggedIn({ isLoggedIn: false }))
+          localStorage.removeItem(AUTH_TOKEN)
+        }
+      })
+      .then(() => {
+        dispatch(baseApi.util.invalidateTags(["Todolist", "Task"]))
+      })
   }
 
   return (
