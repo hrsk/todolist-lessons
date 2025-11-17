@@ -3,7 +3,13 @@ import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import styles from "./TodolistTitle.module.css"
-import { useRemoveTodolistMutation, useUpdateTodolistMutation } from "@/features/todolists/api/todolistsApi.ts"
+import {
+  todolistsApi,
+  useRemoveTodolistMutation,
+  useUpdateTodolistMutation,
+} from "@/features/todolists/api/todolistsApi.ts"
+import { useAppDispatch } from "@/common/hooks"
+import { RequestStatus } from "@/common/types"
 
 type Props = {
   todolist: DomainTodolist
@@ -12,11 +18,29 @@ type Props = {
 export const TodolistTitle = ({ todolist }: Props) => {
   const { id: todolistId, title } = todolist
 
+  const dispatch = useAppDispatch()
+
   const [removeTodolist] = useRemoveTodolistMutation()
   const [updateTodolistTitle] = useUpdateTodolistMutation()
 
+  const changeRequestStatus = (entityStatus: RequestStatus) => {
+    dispatch(
+      todolistsApi.util.updateQueryData("getTodos", undefined, (state) => {
+        const todolist = state.find((todolist) => todolist.id === todolistId)
+        if (todolist) {
+          todolist.entityStatus = entityStatus
+        }
+      }),
+    )
+  }
+
   const removeTodolistHandler = () => {
+    changeRequestStatus("pending")
     removeTodolist(todolistId)
+      .unwrap()
+      .then(() => changeRequestStatus("succeeded"))
+      .catch(() => changeRequestStatus("failed"))
+      .finally(() => changeRequestStatus("idle"))
   }
 
   const changeTodolistTitleHandler = (title: string) => {
@@ -28,7 +52,7 @@ export const TodolistTitle = ({ todolist }: Props) => {
       <h3>
         <EditableSpan value={title} onChange={changeTodolistTitleHandler} />
       </h3>
-      <IconButton onClick={removeTodolistHandler}>
+      <IconButton onClick={removeTodolistHandler} disabled={todolist.entityStatus === "pending"}>
         <DeleteIcon />
       </IconButton>
     </div>
