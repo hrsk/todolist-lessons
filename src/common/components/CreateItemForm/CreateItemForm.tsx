@@ -2,15 +2,18 @@ import { type ChangeEvent, type KeyboardEvent, useState } from "react"
 import TextField from "@mui/material/TextField"
 import AddBoxIcon from "@mui/icons-material/AddBox"
 import IconButton from "@mui/material/IconButton"
+import { useAppSelector } from "@/common/hooks"
+import { selectAppStatus } from "@/app/app-slice.ts"
 
 type Props = {
   onCreateItem: (title: string) => void
-  isDisabled: boolean
 }
 
-export const CreateItemForm = ({ onCreateItem, isDisabled }: Props) => {
+export const CreateItemForm = ({ onCreateItem }: Props) => {
   const [title, setTitle] = useState("")
   const [error, setError] = useState<string | null>(null)
+
+  const requestStatus = useAppSelector(selectAppStatus)
 
   const createItemHandler = () => {
     const trimmedTitle = title.trim()
@@ -36,7 +39,7 @@ export const CreateItemForm = ({ onCreateItem, isDisabled }: Props) => {
   return (
     <div>
       <TextField
-        disabled={isDisabled}
+        disabled={requestStatus === "pending"}
         label={"Enter a title"}
         variant={"outlined"}
         value={title}
@@ -46,7 +49,7 @@ export const CreateItemForm = ({ onCreateItem, isDisabled }: Props) => {
         onChange={changeTitleHandler}
         onKeyDown={createItemOnEnterHandler}
       />
-      <IconButton onClick={createItemHandler} color={"primary"} disabled={isDisabled}>
+      <IconButton onClick={createItemHandler} color={"primary"} disabled={requestStatus === "pending"}>
         <AddBoxIcon />
       </IconButton>
     </div>
