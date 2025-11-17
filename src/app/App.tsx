@@ -29,8 +29,8 @@ export const App = () => {
     if (isLoading) return
     if (data?.resultCode === ResultCode.Success) {
       dispatch(setIsLoggedIn({ isLoggedIn: true }))
-      setInitialized(true)
     }
+      setInitialized(true)
     // dispatch(authMe())
     //   .unwrap()
     //   .finally(() => {
