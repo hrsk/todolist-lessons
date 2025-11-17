@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice, isFulfilled, isPending, isRejected } from "@reduxjs/toolkit"
 import type { Nullable, RequestStatus } from "@/common/types"
 
 export const appSlice = createSlice({
@@ -29,6 +29,18 @@ export const appSlice = createSlice({
       state.isLoggedIn = action.payload.isLoggedIn
     }),
   }),
+  extraReducers: (builder) => {
+    builder
+      .addMatcher(isPending, (state, _action) => {
+        state.status = "pending"
+      })
+      .addMatcher(isFulfilled, (state, _action) => {
+        state.status = "succeeded"
+      })
+      .addMatcher(isRejected, (state, _action) => {
+        state.status = "failed"
+      })
+  },
 })
 
 export const appReducer = appSlice.reducer
