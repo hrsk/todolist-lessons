@@ -3,8 +3,8 @@ import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import CssBaseline from "@mui/material/CssBaseline"
 import { ThemeProvider } from "@mui/material/styles"
-import { selectAppStatus, selectThemeMode, setIsLoggedIn } from "@/app/app-slice.ts"
-import { CircularProgress, LinearProgress } from "@mui/material"
+import { selectThemeMode, setIsLoggedIn } from "@/app/app-slice.ts"
+import { CircularProgress } from "@mui/material"
 import { Routing } from "@/common/routing"
 import { useEffect, useState } from "react"
 import styles from "./App.module.css"
@@ -13,7 +13,6 @@ import { ResultCode } from "@/common/enums"
 
 export const App = () => {
   const themeMode = useAppSelector(selectThemeMode)
-  const appStatus = useAppSelector(selectAppStatus)
 
   const dispatch = useAppDispatch()
 
@@ -51,7 +50,6 @@ export const App = () => {
       <div className={"app"}>
         <CssBaseline />
         <Header />
-        {appStatus === "pending" && <LinearProgress />}
         <Routing />
       </div>
     </ThemeProvider>
