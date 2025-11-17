@@ -1,9 +1,10 @@
 import { useAppDispatch } from "@/common/hooks"
 import { containerSx } from "@/common/styles"
-import { changeTodolistFilter, type FilterValues } from "@/features/todolists/model/todolists-slice"
+import { type FilterValues } from "@/features/todolists/model/todolists-slice"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import { DomainTodolist } from "@/features/todolists/api/todolistsApi.types.ts"
+import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 
 type Props = {
   todolist: DomainTodolist
@@ -15,7 +16,14 @@ export const FilterButtons = ({ todolist }: Props) => {
   const dispatch = useAppDispatch()
 
   const changeFilter = (filter: FilterValues) => {
-    dispatch(changeTodolistFilter({ todolistId, filter }))
+    dispatch(
+      todolistsApi.util.updateQueryData("getTodos", undefined, (state) => {
+        const todolist = state.find((todolist) => todolist.id === todolistId)
+        if (todolist) {
+          todolist.filter = filter
+        }
+      }),
+    )
   }
 
   return (
