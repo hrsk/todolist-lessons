@@ -1,4 +1,5 @@
 import { FilterValues } from "@/features/todolists/model/todolists-slice.ts"
+import { RequestStatus } from "@/common/types"
 
 export type Todolist = {
   id: string
@@ -9,4 +10,5 @@ export type Todolist = {
 
 export type DomainTodolist = Todolist & {
   filter: FilterValues
+  entityStatus: RequestStatus
 }
