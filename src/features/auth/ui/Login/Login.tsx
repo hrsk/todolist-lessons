@@ -1,4 +1,4 @@
-import { selectIsLoggedIn, selectThemeMode, setIsLoggedIn } from "@/app/app-slice"
+import { selectIsLoggedIn, selectThemeMode, setCaptcha, setIsLoggedIn } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
@@ -16,8 +16,9 @@ import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
 import { Navigate } from "react-router"
 import { PATHS } from "@/common/routing"
 import { AUTH_TOKEN, EMAIL } from "@/common/constants"
-import { useLoginMutation } from "@/features/auth/api/authApi.ts"
+import { useCaptchaQuery, useLoginMutation } from "@/features/auth/api/authApi.ts"
 import { ResultCode } from "@/common/enums"
+import { useState } from "react"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -27,6 +28,8 @@ export const Login = () => {
 
   const theme = getTheme(themeMode)
 
+  const [skip, setSkip] = useState<boolean>(true)
+
   const {
     register,
     handleSubmit,
@@ -35,10 +38,11 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: EMAIL, password: "", rememberMe: false },
+    defaultValues: { email: EMAIL, password: "", rememberMe: false, captcha: "" },
   })
 
   const [login] = useLoginMutation()
+  const { data: captchaUrl } = useCaptchaQuery(undefined, { skip })
 
   const onSubmit: SubmitHandler<LoginInputs> = (data: LoginInputs) => {
     login(data).then((res) => {
@@ -46,6 +50,13 @@ export const Login = () => {
         dispatch(setIsLoggedIn({ isLoggedIn: true }))
         localStorage.setItem(AUTH_TOKEN, res.data.data.token)
         reset()
+      } else {
+        if (res.data?.resultCode === ResultCode.CaptchaError) {
+          setSkip(false)
+          if (captchaUrl) {
+            dispatch(setCaptcha({ captchaUrl: captchaUrl.url }))
+          }
+        }
       }
     })
     // .unwrap()
@@ -151,7 +162,30 @@ export const Login = () => {
               }
               {...register("rememberMe")}
             />
-
+            {captchaUrl && (
+              <>
+                <FormControlLabel
+                  label={"Captcha"}
+                  control={
+                    <Controller
+                      name={"captcha"}
+                      control={control}
+                      render={({ field: { onChange, value } }) => (
+                        <TextField
+                          placeholder={"Please enter anti-bot symbols"}
+                          onChange={onChange}
+                          value={value}
+                          margin={"normal"}
+                          error={!!errors.email}
+                        />
+                      )}
+                    />
+                  }
+                  {...register("captcha")}
+                />
+                <img src={captchaUrl.url} alt="captcha symbols" />
+              </>
+            )}
             <Button type="submit" variant="contained" color="primary">
               Login
             </Button>

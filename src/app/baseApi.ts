@@ -12,6 +12,7 @@ export const baseApi = createApi({
     headers: {
       "API-KEY": import.meta.env.VITE_API_KEY,
     },
+    credentials: "include",
     prepareHeaders: (headers) => {
       headers.set("Authorization", `Bearer ${localStorage.getItem(AUTH_TOKEN)}`)
       return headers
