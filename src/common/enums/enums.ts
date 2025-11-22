@@ -18,3 +18,4 @@ export enum ResultCode {
   Error = 1,
   CaptchaError = 10,
 }
+export type ResultCodeType = (typeof ResultCode)[keyof typeof ResultCode]

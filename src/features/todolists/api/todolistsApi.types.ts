@@ -1,5 +1,4 @@
-import { FilterValues } from "@/features/todolists/model/todolists-slice.ts"
-import { RequestStatus } from "@/common/types"
+import { FilterValues, RequestStatus } from "@/common/types"
 
 export type Todolist = {
   id: string

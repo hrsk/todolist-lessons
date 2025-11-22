@@ -49,3 +49,5 @@ export const createBaseResponseSchema = <T extends z.ZodTypeAny>(schema: T) => {
 }
 
 export type BaseResponse = z.infer<typeof createBaseResponseSchema>
+
+export type FilterValues = 'all' | 'active' | 'completed'
