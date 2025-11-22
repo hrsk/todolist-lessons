@@ -34,6 +34,21 @@ export const todolistsApi = baseApi.injectEndpoints({
         url: `todo-lists/${id}`,
         method: "DELETE",
       }),
+      async onQueryStarted(id: string, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodos", undefined, (state) => {
+            const index = state.findIndex((todolist) => todolist.id === id)
+            if (index !== -1) {
+              state.splice(index, 1)
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
     }),
     updateTodolist: build.mutation<BaseResponse, { todolistId: string; title: string }>({
       invalidatesTags: ["Todolist"],
@@ -42,6 +57,21 @@ export const todolistsApi = baseApi.injectEndpoints({
         method: "PUT",
         body: { title },
       }),
+      async onQueryStarted({ todolistId, title }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodos", undefined, (state) => {
+            const todolist = state.find((todolist) => todolist.id === todolistId)
+            if (todolist) {
+              todolist.title = title
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
     }),
   }),
 })

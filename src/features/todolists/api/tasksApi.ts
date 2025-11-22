@@ -1,10 +1,11 @@
 import type { BaseResponse } from "@/common/types"
 import type { GetTasksResponse, TaskOperationResponse, UpdateTaskModel } from "./tasksApi.types"
 import { baseApi } from "@/app/baseApi.ts"
+import { PAGE_SIZE } from "@/common/constants/constants.ts"
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getTasks: build.query<GetTasksResponse, { todolistId: string, count: number, page: number }>({
+    getTasks: build.query<GetTasksResponse, { todolistId: string; count: number; page: number }>({
       query: ({ todolistId, count, page }) => ({
         url: `/todo-lists/${todolistId}/tasks`,
         params: { count, page },
@@ -36,6 +37,30 @@ export const tasksApi = baseApi.injectEndpoints({
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
         body: model,
       }),
+      async onQueryStarted({ todolistId, taskId, model }, { dispatch, queryFulfilled, getState }) {
+        const cachedArgsForQuery = tasksApi.util.selectCachedArgsForQuery(getState(), "getTasks")
+
+        let patchResults: any[] = []
+        cachedArgsForQuery.forEach(({ count, page }) => {
+          patchResults.push(
+            dispatch(
+              tasksApi.util.updateQueryData("getTasks", { todolistId, count, page }, (state) => {
+                const index = state.items.findIndex((task) => task.id === taskId)
+                if (index !== -1) {
+                  state.items[index] = { ...state.items[index], ...model }
+                }
+              }),
+            ),
+          )
+        })
+        try {
+          await queryFulfilled
+        } catch {
+          patchResults.forEach((patchResult) => {
+            patchResult.undo()
+          })
+        }
+      },
     }),
     deleteTask: build.mutation<BaseResponse, { todolistId: string; taskId: string }>({
       // invalidatesTags: ["Task"],
@@ -44,6 +69,21 @@ export const tasksApi = baseApi.injectEndpoints({
         method: "DELETE",
         url: `/todo-lists/${todolistId}/tasks/${taskId}`,
       }),
+      async onQueryStarted({ todolistId, taskId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          tasksApi.util.updateQueryData("getTasks", { todolistId, count: PAGE_SIZE, page: 1 }, (state) => {
+            const index = state.items.findIndex((task) => task.id === taskId)
+            if (index !== -1) {
+              state.items.splice(index, 1)
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
     }),
   }),
 })

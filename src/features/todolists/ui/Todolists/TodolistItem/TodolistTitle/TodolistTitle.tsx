@@ -34,13 +34,26 @@ export const TodolistTitle = ({ todolist }: Props) => {
     )
   }
 
-  const removeTodolistHandler = () => {
+  const removeTodolistHandler = async () => {
     changeRequestStatus("pending")
     removeTodolist(todolistId)
       .unwrap()
       .then(() => changeRequestStatus("succeeded"))
       .catch(() => changeRequestStatus("failed"))
       .finally(() => changeRequestStatus("idle"))
+    // const patchResult = dispatch(
+    //   todolistsApi.util.updateQueryData("getTodos", undefined, state => {
+    //     const index = state.findIndex(todolist => todolist.id === todolistId)
+    //     if (index !== -1) {
+    //       state.splice(index, 1)
+    //     }
+    //   })
+    // )
+    // try {
+    //   await removeTodolist(todolistId).unwrap()
+    // } catch {
+    //   patchResult.undo()
+    // }
   }
 
   const changeTodolistTitleHandler = (title: string) => {
