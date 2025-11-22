@@ -11,6 +11,7 @@ export const baseApi = createApi({
     },
     prepareHeaders: headers => {
       headers.set('Authorization', `Bearer ${localStorage.getItem(AUTH_TOKEN)}`)
+      return headers
     },
   }),
   endpoints: () => ({}),

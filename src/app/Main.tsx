@@ -14,7 +14,7 @@ export const Main = () => {
   const isError = useAppSelector(selectAppError)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
-  const [createTodolist] = useAddTodolistMutation({})
+  const [createTodolist] = useAddTodolistMutation()
 
   const createTodolistHandler = (title: string) => {
     createTodolist(title)
